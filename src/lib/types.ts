@@ -25,7 +25,7 @@ export type Meal = {
 }
 
 export type MenuItem = {
-  course: 'entrée' | 'plat' | 'dessert'
+course: 'entrée' | 'plat' | 'dessert' | 'apéro'
   name: string
   description: string
   compatible_with: string[]

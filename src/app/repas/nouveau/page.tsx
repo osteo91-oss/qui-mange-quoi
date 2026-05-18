@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Navbar from '@/components/Navbar'
+import { compressImage } from '@/lib/compress'
 
 const TYPES = ['Déjeuner', 'Dîner', 'Apéro', 'Buffet', 'Pique-nique', 'Autre']
 
@@ -15,6 +16,7 @@ export default function NouveauRepas() {
   const [place, setPlace] = useState('')
   const [type, setType] = useState('Dîner')
   const [photoUrl, setPhotoUrl] = useState('')
+  const [uploading, setUploading] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -23,6 +25,22 @@ export default function NouveauRepas() {
       if (!data.user) router.push('/auth')
     })
   }, [router])
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    const compressed = await compressImage(file, 800, 0.75)
+    const fileName = `${Date.now()}.jpg`
+    const { error } = await supabase.storage
+      .from('meals')
+      .upload(fileName, compressed, { upsert: true })
+    if (!error) {
+      const { data } = supabase.storage.from('meals').getPublicUrl(fileName)
+      setPhotoUrl(data.publicUrl)
+    }
+    setUploading(false)
+  }
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -79,16 +97,7 @@ export default function NouveauRepas() {
 
         <label style={{ cursor: 'pointer', display: 'block', marginBottom: 16 }}>
           <input type="file" accept="image/*" style={{ display: 'none' }}
-            onChange={async (e) => {
-              const file = e.target.files?.[0]
-              if (!file) return
-              const fileName = `${Date.now()}.${file.name.split('.').pop()}`
-              const { error } = await supabase.storage.from('meals').upload(fileName, file, { upsert: true })
-              if (!error) {
-                const { data } = supabase.storage.from('meals').getPublicUrl(fileName)
-                setPhotoUrl(data.publicUrl)
-              }
-            }}
+            onChange={handlePhotoUpload}
           />
           <div style={{
             width: '100%', height: 160, borderRadius: 20,
@@ -108,9 +117,15 @@ export default function NouveauRepas() {
               </>
             ) : (
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 32, marginBottom: 6 }}>📸</div>
-                <p style={{ fontSize: 13, color: '#3B6E3F', fontWeight: 600, margin: 0 }}>Ajouter une photo</p>
-                <p style={{ fontSize: 11, color: '#AAA', margin: '2px 0 0' }}>Optionnel</p>
+                <div style={{ fontSize: 32, marginBottom: 6 }}>
+                  {uploading ? '⏳' : '📸'}
+                </div>
+                <p style={{ fontSize: 13, color: '#3B6E3F', fontWeight: 600, margin: 0 }}>
+                  {uploading ? 'Compression en cours...' : 'Ajouter une photo'}
+                </p>
+                <p style={{ fontSize: 11, color: '#AAA', margin: '2px 0 0' }}>
+                  {uploading ? '' : 'Optionnel — sera compressée automatiquement'}
+                </p>
               </div>
             )}
           </div>
@@ -254,13 +269,13 @@ export default function NouveauRepas() {
             </div>
           )}
 
-          <button type="submit" disabled={loading} style={{
+          <button type="submit" disabled={loading || uploading} style={{
             width: '100%', padding: '14px',
-            background: '#3B6E3F', color: 'white',
-            border: 'none', borderRadius: 100,
+            background: loading || uploading ? '#AAA' : '#3B6E3F',
+            color: 'white', border: 'none', borderRadius: 100,
             fontSize: 15, fontWeight: 600, cursor: 'pointer'
           }}>
-            {loading ? 'Création...' : 'Créer le repas →'}
+            {loading ? 'Création...' : uploading ? 'Photo en cours...' : 'Créer le repas →'}
           </button>
         </form>
       </div>

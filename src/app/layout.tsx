@@ -3,7 +3,12 @@ import './globals.css'
 
 export const metadata: Metadata = {
   title: 'Qui mange quoi',
-  description: 'Organisez vos repas en tenant compte des préférences de chacun',
+  description: 'Eat together. Really together.',
+  openGraph: {
+    title: 'Qui mange quoi',
+    description: 'Eat together. Really together.',
+    images: ['/logo.png'],
+  },
 }
 
 export default function RootLayout({

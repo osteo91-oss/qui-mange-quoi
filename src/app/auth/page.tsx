@@ -52,19 +52,15 @@ export default function AuthPage() {
       <div style={{ width: '100%', maxWidth: 360 }}>
 
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <div style={{
-            width: 64, height: 64, borderRadius: '50%',
-            background: '#2E7D32', display: 'flex',
-            alignItems: 'center', justifyContent: 'center',
-            margin: '0 auto 16px', fontSize: 28
-          }}>🍽️</div>
-          <h1 style={{ fontSize: 24, fontWeight: 700, color: '#1B4332', margin: 0 }}>
-            Qui mange quoi
-          </h1>
-          <p style={{ fontSize: 14, color: '#888', marginTop: 6 }}>
-            N'oubliez plus les goûts de vos invités
-          </p>
-        </div>
+  <img
+    src="/logo.png"
+    alt="Qui mange quoi"
+    style={{ width: 200, margin: '0 auto 16px', display: 'block' }}
+  />
+  <p style={{ fontSize: 14, color: '#888', marginTop: 6 }}>
+    Eat together. Really together.
+  </p>
+</div>
 
         <div style={{
           background: 'white', borderRadius: 20,

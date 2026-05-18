@@ -38,15 +38,15 @@ export default function HomePage() {
   return (
     <div style={{ maxWidth: 480, margin: '0 auto', padding: '0 16px' }}>
       <div style={{ padding: '20px 0 16px', borderBottom: '0.5px solid #E0E0E0', marginBottom: 20 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div>
-            <h1 style={{ fontSize: 24, fontWeight: 700, color: '#1B4332', margin: 0 }}>
-              Qui mange quoi
-            </h1>
-            <p style={{ fontSize: 14, color: '#888', marginTop: 4 }}>
-              Bonjour {userName} 👋
-            </p>
-          </div>
+  <img
+    src="/logo.png"
+    alt="Qui mange quoi"
+    style={{ width: 160, display: 'block' }}
+  />
+  <p style={{ fontSize: 14, color: '#888', marginTop: 4 }}>
+    Bonjour {userName} 👋
+  </p>
+</div>
           <div style={{
             width: 42, height: 42, borderRadius: '50%',
             background: '#E8F5E9', display: 'flex',

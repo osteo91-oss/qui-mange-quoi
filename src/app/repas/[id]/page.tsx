@@ -20,17 +20,14 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
   useEffect(() => {
     const load = async () => {
       const { data: { user } } = await supabase.auth.getUser()
-
       const { data: mealData } = await supabase
         .from('meals').select('*').eq('id', id).single()
       setMeal(mealData)
-
       if (user && mealData) {
         const organizer = mealData.organizer_id === user.id
         setIsOrganizer(organizer)
         setActiveTab(organizer ? 'invites' : 'dates')
       }
-
       const { data: guestData } = await supabase
         .from('meal_guests')
         .select('profile_id, profiles(*)')
@@ -51,7 +48,7 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
   const shareWhatsApp = () => {
     if (!meal) return
     const link = `${window.location.origin}/rejoindre/${meal.invite_token}`
-    const text = `Tu es invité(e) au repas "${meal.name}" !\n\n👉 Rejoins-nous, indique tes disponibilités et ton profil alimentaire ici : ${link}`
+    const text = `Tu es invité(e) au repas "${meal.name}" !\n\n👉 Rejoins-nous ici : ${link}`
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')
   }
 
@@ -83,15 +80,13 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
 
   const allAllergies = [...new Set(guests.flatMap(g => g.allergies))]
   const allDislikes = [...new Set(guests.flatMap(g => g.dislikes))]
-
-  const organizerTabs = ['invites', 'dates', 'synthese', 'menus'] as const
-  const guestTabs = ['dates'] as const
-
-  const tabs = isOrganizer ? organizerTabs : guestTabs
-
+  const dateMode = (meal as any).date_mode || 'fixed'
+  const tabs = isOrganizer
+    ? ['invites', 'dates', 'synthese', 'menus'] as const
+    : ['dates'] as const
   const tabLabels: Record<string, string> = {
     invites: '👥 Invités',
-    dates: '🗓️ Dates',
+    dates: dateMode === 'doodle' ? '🗳️ Dates' : '📅 Date',
     synthese: '📊 Synthèse',
     menus: '✨ Menus',
   }
@@ -107,8 +102,7 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
             <div style={{
               position: 'absolute', top: 0, left: 0, right: 0,
               background: 'linear-gradient(to bottom, rgba(0,0,0,0.5), transparent)',
-              padding: '16px',
-              display: 'flex', alignItems: 'center', gap: 12
+              padding: '16px', display: 'flex', alignItems: 'center', gap: 12
             }}>
               <button onClick={() => router.push('/')} style={{
                 background: 'rgba(255,255,255,0.9)', border: 'none',
@@ -238,9 +232,7 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
                           fontSize: 11, background: '#FFEBEE',
                           color: '#C62828', padding: '3px 8px',
                           borderRadius: 100, fontWeight: 500
-                        }}>
-                          ⚠️ {g.allergies.length}
-                        </span>
+                        }}>⚠️ {g.allergies.length}</span>
                       )}
                     </div>
                   ))}
@@ -254,30 +246,64 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
               border: 'none', borderRadius: 100,
               fontSize: 15, fontWeight: 600, cursor: 'pointer'
             }}>
-              Gérer les dates →
+              {dateMode === 'doodle' ? 'Gérer le sondage →' : 'Voir la date →'}
             </button>
           </div>
         )}
 
         {activeTab === 'dates' && (
           <div>
-            {!isOrganizer && (
-              <div style={{
-                background: '#E8F0E8', borderRadius: 14, padding: '12px 16px',
-                marginBottom: 12, display: 'flex', gap: 10, alignItems: 'flex-start'
-              }}>
-                <span style={{ fontSize: 20 }}>🗓️</span>
-                <div>
-                  <p style={{ fontSize: 13, fontWeight: 600, color: '#1B3A1E', margin: 0 }}>
-                    Indiquez vos disponibilités
+            {dateMode === 'fixed' ? (
+              <div style={{ background: 'white', borderRadius: 16, padding: 20, border: '0.5px solid #E8E4DC', marginBottom: 12 }}>
+                <p style={{ fontSize: 11, fontWeight: 600, color: '#AAA', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>
+                  Date du repas
+                </p>
+                {meal.date ? (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                    <div style={{
+                      width: 52, height: 52, borderRadius: 14,
+                      background: '#E8F0E8', display: 'flex',
+                      alignItems: 'center', justifyContent: 'center', fontSize: 24
+                    }}>📅</div>
+                    <div>
+                      <p style={{ fontSize: 16, fontWeight: 700, color: '#1B3A1E', margin: 0, textTransform: 'capitalize' }}>
+                        {new Date(meal.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                      </p>
+                      {(meal as any).time && (
+                        <p style={{ fontSize: 13, color: '#888', margin: '4px 0 0' }}>🕐 {(meal as any).time}</p>
+                      )}
+                      {(meal as any).place && (
+                        <p style={{ fontSize: 13, color: '#888', margin: '4px 0 0' }}>📍 {(meal as any).place}</p>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <p style={{ fontSize: 13, color: '#AAA', textAlign: 'center', padding: '12px 0' }}>
+                    Aucune date définie
                   </p>
-                  <p style={{ fontSize: 12, color: '#5A8A5C', margin: '2px 0 0' }}>
-                    L'organisateur choisira la meilleure date pour tous.
-                  </p>
-                </div>
+                )}
               </div>
+            ) : (
+              <>
+                {!isOrganizer && (
+                  <div style={{
+                    background: '#E8F0E8', borderRadius: 14, padding: '12px 16px',
+                    marginBottom: 12, display: 'flex', gap: 10, alignItems: 'flex-start'
+                  }}>
+                    <span style={{ fontSize: 20 }}>🗳️</span>
+                    <div>
+                      <p style={{ fontSize: 13, fontWeight: 600, color: '#1B3A1E', margin: 0 }}>
+                        Indiquez vos disponibilités
+                      </p>
+                      <p style={{ fontSize: 12, color: '#5A8A5C', margin: '2px 0 0' }}>
+                        L'organisateur choisira la meilleure date pour tous.
+                      </p>
+                    </div>
+                  </div>
+                )}
+                <Doodle mealId={id} isOrganizer={isOrganizer} />
+              </>
             )}
-            <Doodle mealId={id} isOrganizer={isOrganizer} />
             {isOrganizer && guests.length > 0 && (
               <button onClick={() => setActiveTab('synthese')} style={{
                 width: '100%', padding: '14px', marginTop: 8,
@@ -364,11 +390,6 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
                 <p style={{ fontSize: 15, fontWeight: 700, color: '#1B3A1E', marginBottom: 16 }}>
                   Composer le menu
                 </p>
-
-                <p style={{ fontSize: 11, fontWeight: 600, color: '#AAA', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>
-                  Que souhaitez-vous servir ?
-                </p>
-
                 <button onClick={generateMenu} disabled={generating} style={{
                   width: '100%', padding: '14px',
                   background: generating ? '#888' : '#E8874A',

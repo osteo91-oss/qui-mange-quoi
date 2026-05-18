@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import Navbar from '@/components/Navbar'
 import CompatScore from '@/components/CompatScore'
 import Doodle from '@/components/Doodle'
+import MenuBuilder from '@/components/MenuBuilder'
 import type { Meal, Profile } from '@/lib/types'
 
 export default function RepasPage({ params }: { params: Promise<{ id: string }> }) {
@@ -16,6 +17,8 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
   const [copied, setCopied] = useState(false)
   const [isOrganizer, setIsOrganizer] = useState(false)
   const [activeTab, setActiveTab] = useState<'invites' | 'dates' | 'synthese' | 'menus'>('dates')
+  const [suggestions, setSuggestions] = useState<any>(null)
+  const [courses, setCourses] = useState({ apero: false, entree: true, plat: true, dessert: true })
 
   useEffect(() => {
     const load = async () => {
@@ -55,20 +58,41 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
   const generateMenu = async () => {
     if (!meal || guests.length === 0) return
     setGenerating(true)
+    setSuggestions(null)
     const res = await fetch('/api/generer-menu', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ guests, mealName: meal.name }),
+      body: JSON.stringify({ guests, mealName: meal.name, courses }),
     })
     const data = await res.json()
-    await supabase.from('meals').update({
-      ai_menu: data.menu,
-      shopping_list: data.shopping_list,
-      compatibility_score: data.compatibility_score,
-    }).eq('id', id)
-    setMeal({ ...meal, ai_menu: data.menu, shopping_list: data.shopping_list, compatibility_score: data.compatibility_score })
-    setActiveTab('menus')
+    if (data.suggestions) {
+      setSuggestions(data.suggestions)
+      await supabase.from('meals').update({
+        compatibility_score: data.compatibility_score,
+      }).eq('id', id)
+      setMeal({ ...meal, compatibility_score: data.compatibility_score })
+    }
     setGenerating(false)
+  }
+
+  const handleValidateMenu = async (
+    selected: { course: string, dish: any }[],
+    shoppingList: { ingredient: string, quantity: string, category: string }[]
+  ) => {
+    if (!meal) return
+    const menu = selected.map(s => ({
+      course: s.course,
+      name: s.dish.name,
+      description: s.dish.description,
+      compatible_with: guests.map(g => g.name),
+      warnings: s.dish.warnings,
+    }))
+    await supabase.from('meals').update({
+      ai_menu: menu,
+      shopping_list: shoppingList,
+    }).eq('id', id)
+    setMeal({ ...meal, ai_menu: menu, shopping_list: shoppingList })
+    setSuggestions(null)
   }
 
   if (!meal) return (
@@ -385,46 +409,117 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
 
         {activeTab === 'menus' && isOrganizer && (
           <div>
-            {!meal.ai_menu ? (
-              <div style={{ background: 'white', borderRadius: 16, padding: 24, border: '0.5px solid #E8E4DC' }}>
-                <p style={{ fontSize: 15, fontWeight: 700, color: '#1B3A1E', marginBottom: 16 }}>
+            {!suggestions && !meal.ai_menu && (
+              <div style={{ background: 'white', borderRadius: 16, padding: 20, border: '0.5px solid #E8E4DC' }}>
+                <p style={{ fontSize: 15, fontWeight: 700, color: '#1B3A1E', marginBottom: 6 }}>
                   Composer le menu
                 </p>
-                <button onClick={generateMenu} disabled={generating} style={{
+                <p style={{ fontSize: 12, color: '#888', marginBottom: 16 }}>
+                  Choisissez les cours que vous souhaitez servir.
+                </p>
+
+                <p style={{ fontSize: 11, fontWeight: 600, color: '#AAA', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>
+                  Cours à inclure
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
+                  {[
+                    { key: 'apero', label: '🥂 Apéritif', desc: 'Amuse-bouches et boissons' },
+                    { key: 'entree', label: '🥗 Entrée', desc: 'Salade, soupe, verrines...' },
+                    { key: 'plat', label: '🍽️ Plat principal', desc: 'Viande, poisson, végétarien...' },
+                    { key: 'dessert', label: '🍮 Dessert', desc: 'Gâteau, fruits, glace...' },
+                  ].map(({ key, label, desc }) => (
+                    <div key={key} onClick={() => setCourses({ ...courses, [key]: !courses[key as keyof typeof courses] })}
+                      style={{
+                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                        padding: '12px 14px', borderRadius: 12, cursor: 'pointer',
+                        background: courses[key as keyof typeof courses] ? '#E8F0E8' : '#F7F5F0',
+                        border: courses[key as keyof typeof courses] ? '1.5px solid #3B6E3F' : '0.5px solid #E8E4DC'
+                      }}>
+                      <div>
+                        <p style={{ fontSize: 14, fontWeight: 600, color: '#1B3A1E', margin: 0 }}>{label}</p>
+                        <p style={{ fontSize: 11, color: '#888', margin: '2px 0 0' }}>{desc}</p>
+                      </div>
+                      <div style={{
+                        width: 24, height: 24, borderRadius: '50%',
+                        background: courses[key as keyof typeof courses] ? '#3B6E3F' : 'white',
+                        border: courses[key as keyof typeof courses] ? 'none' : '1.5px solid #DDD',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center'
+                      }}>
+                        {courses[key as keyof typeof courses] && (
+                          <span style={{ color: 'white', fontSize: 12, fontWeight: 700 }}>✓</span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <button onClick={generateMenu} disabled={generating || !Object.values(courses).some(Boolean)} style={{
                   width: '100%', padding: '14px',
                   background: generating ? '#888' : '#E8874A',
                   color: 'white', border: 'none', borderRadius: 100,
                   fontSize: 15, fontWeight: 600, cursor: 'pointer'
                 }}>
-                  {generating ? '✨ Génération en cours...' : '✨ Générer le menu avec l\'IA'}
+                  {generating ? '✨ Génération en cours...' : '✨ Générer les propositions'}
                 </button>
               </div>
-            ) : (
+            )}
+
+            {suggestions && !meal.ai_menu && (
               <div>
-                <p style={{ fontSize: 13, color: '#AAA', marginBottom: 12 }}>
-                  {meal.ai_menu.length} plats suggérés
-                </p>
+                <div style={{
+                  background: '#E8F0E8', borderRadius: 14, padding: '12px 16px',
+                  marginBottom: 16, display: 'flex', gap: 10, alignItems: 'flex-start'
+                }}>
+                  <span style={{ fontSize: 20 }}>👇</span>
+                  <div>
+                    <p style={{ fontSize: 13, fontWeight: 600, color: '#1B3A1E', margin: 0 }}>
+                      Choisissez vos plats préférés
+                    </p>
+                    <p style={{ fontSize: 12, color: '#5A8A5C', margin: '2px 0 0' }}>
+                      3 propositions par cours — sélectionnez 1 par cours.
+                    </p>
+                  </div>
+                </div>
+                <MenuBuilder suggestions={suggestions} onValidate={handleValidateMenu} />
+                <button onClick={() => { setSuggestions(null) }} style={{
+                  width: '100%', padding: '12px', marginTop: 8,
+                  background: '#F7F5F0', color: '#888',
+                  border: '0.5px solid #E8E4DC', borderRadius: 100,
+                  fontSize: 13, fontWeight: 500, cursor: 'pointer'
+                }}>
+                  ↩ Recommencer
+                </button>
+              </div>
+            )}
+
+            {meal.ai_menu && (
+              <div>
+                <div style={{
+                  background: '#E8F0E8', borderRadius: 14, padding: '12px 16px',
+                  marginBottom: 16, display: 'flex', gap: 10, alignItems: 'center'
+                }}>
+                  <span style={{ fontSize: 20 }}>✅</span>
+                  <p style={{ fontSize: 13, fontWeight: 600, color: '#1B3A1E', margin: 0 }}>
+                    Menu validé — {meal.ai_menu.length} cours
+                  </p>
+                </div>
+
                 {meal.ai_menu.map((item, i) => (
                   <div key={i} style={{
                     background: 'white', borderRadius: 16, overflow: 'hidden',
                     border: '0.5px solid #E8E4DC', marginBottom: 10
                   }}>
                     <div style={{
-                      height: 70, background: '#E8F0E8',
+                      height: 60, background: '#E8F0E8',
                       display: 'flex', alignItems: 'center',
-                      justifyContent: 'center', fontSize: 32
+                      justifyContent: 'center', fontSize: 28
                     }}>
                       {item.course === 'entrée' ? '🥗' : item.course === 'plat' ? '🍽️' : item.course === 'apéro' ? '🥂' : '🍮'}
                     </div>
                     <div style={{ padding: '12px 16px' }}>
                       <p style={{ fontSize: 11, color: '#AAA', textTransform: 'uppercase', letterSpacing: 1, margin: '0 0 4px' }}>{item.course}</p>
                       <p style={{ fontSize: 15, fontWeight: 600, color: '#1B3A1E', margin: '0 0 4px' }}>{item.name}</p>
-                      <p style={{ fontSize: 13, color: '#888', margin: '0 0 8px' }}>{item.description}</p>
-                      {item.warnings.map((w, j) => (
-                        <div key={j} style={{ marginTop: 6, background: '#FFF3E0', borderRadius: 8, padding: '6px 10px', fontSize: 12, color: '#E65100' }}>
-                          ⚠️ {w}
-                        </div>
-                      ))}
+                      <p style={{ fontSize: 13, color: '#888', margin: 0 }}>{item.description}</p>
                     </div>
                   </div>
                 ))}
@@ -432,7 +527,7 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
                 {meal.shopping_list && (
                   <div style={{ background: 'white', borderRadius: 16, padding: 16, border: '0.5px solid #E8E4DC', marginTop: 4 }}>
                     <p style={{ fontSize: 11, fontWeight: 600, color: '#AAA', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>
-                      🛒 Liste de courses
+                      🛒 Liste de courses ({guests.length} personnes)
                     </p>
                     {meal.shopping_list.map((item, i) => (
                       <div key={i} style={{
@@ -450,13 +545,16 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
                   </div>
                 )}
 
-                <button onClick={generateMenu} disabled={generating} style={{
-                  width: '100%', padding: '14px', marginTop: 12,
-                  background: '#F7F5F0', color: '#3B6E3F',
-                  border: '0.5px solid #3B6E3F', borderRadius: 100,
-                  fontSize: 14, fontWeight: 500, cursor: 'pointer', marginBottom: 20
+                <button onClick={() => {
+                  setMeal({ ...meal, ai_menu: null, shopping_list: null })
+                  setSuggestions(null)
+                }} style={{
+                  width: '100%', padding: '12px', marginTop: 12,
+                  background: '#F7F5F0', color: '#888',
+                  border: '0.5px solid #E8E4DC', borderRadius: 100,
+                  fontSize: 13, fontWeight: 500, cursor: 'pointer', marginBottom: 20
                 }}>
-                  {generating ? '✨ Génération...' : '↻ Générer d\'autres idées'}
+                  ↩ Recomposer le menu
                 </button>
               </div>
             )}

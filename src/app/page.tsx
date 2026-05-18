@@ -1,65 +1,127 @@
-import Image from "next/image";
+'use client'
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { supabase } from '@/lib/supabase'
+import Navbar from '@/components/Navbar'
+import type { Meal } from '@/lib/types'
 
-export default function Home() {
-  return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+export default function HomePage() {
+  const router = useRouter()
+  const [meals, setMeals] = useState<Meal[]>([])
+  const [userName, setUserName] = useState('')
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const load = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) { router.push('/auth'); return }
+      const { data: profile } = await supabase
+        .from('profiles').select('name').eq('id', user.id).single()
+      if (profile) setUserName(profile.name)
+      const { data } = await supabase
+        .from('meals').select('*')
+        .eq('organizer_id', user.id)
+        .order('created_at', { ascending: false })
+      if (data) setMeals(data)
+      setLoading(false)
+    }
+    load()
+  }, [router])
+
+  if (loading) return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
+      <p style={{ color: '#888' }}>Chargement...</p>
     </div>
-  );
+  )
+
+  return (
+    <div style={{ maxWidth: 480, margin: '0 auto', padding: '0 16px' }}>
+      <div style={{ padding: '20px 0 16px', borderBottom: '0.5px solid #E0E0E0', marginBottom: 20 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div>
+            <h1 style={{ fontSize: 24, fontWeight: 700, color: '#1B4332', margin: 0 }}>
+              Qui mange quoi
+            </h1>
+            <p style={{ fontSize: 14, color: '#888', marginTop: 4 }}>
+              Bonjour {userName} 👋
+            </p>
+          </div>
+          <div style={{
+            width: 42, height: 42, borderRadius: '50%',
+            background: '#E8F5E9', display: 'flex',
+            alignItems: 'center', justifyContent: 'center',
+            fontSize: 20
+          }}>🍽️</div>
+        </div>
+      </div>
+
+      <p style={{ fontSize: 11, fontWeight: 600, color: '#888', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>
+        Mes repas
+      </p>
+
+      {meals.length === 0 ? (
+        <div style={{
+          background: 'white', borderRadius: 16, padding: 32,
+          textAlign: 'center', border: '0.5px solid #E0E0E0'
+        }}>
+          <div style={{ fontSize: 40, marginBottom: 12 }}>🍽️</div>
+          <p style={{ fontWeight: 600, color: '#1B4332', marginBottom: 6 }}>
+            Aucun repas encore
+          </p>
+          <p style={{ fontSize: 13, color: '#888', marginBottom: 20 }}>
+            Créez votre premier repas et invitez vos convives.
+          </p>
+          <Link href="/repas/nouveau">
+            <button style={{
+              background: '#2E7D32', color: 'white',
+              border: 'none', borderRadius: 100,
+              padding: '12px 24px', fontSize: 14,
+              fontWeight: 500, cursor: 'pointer'
+            }}>
+              + Créer un repas
+            </button>
+          </Link>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {meals.map(meal => (
+            <Link key={meal.id} href={`/repas/${meal.id}`} style={{ textDecoration: 'none' }}>
+              <div style={{
+                background: 'white', borderRadius: 16,
+                padding: '16px', border: '0.5px solid #E0E0E0',
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div style={{
+                    width: 44, height: 44, borderRadius: 12,
+                    background: '#E8F5E9', display: 'flex',
+                    alignItems: 'center', justifyContent: 'center', fontSize: 22
+                  }}>🍽️</div>
+                  <div>
+                    <p style={{ fontWeight: 600, color: '#1B4332', margin: 0 }}>{meal.name}</p>
+                    {meal.date && (
+                      <p style={{ fontSize: 12, color: '#888', margin: '2px 0 0' }}>
+                        {new Date(meal.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  {meal.ai_menu && (
+                    <span style={{
+                      fontSize: 11, background: '#E8F5E9',
+                      color: '#2E7D32', padding: '3px 8px',
+                      borderRadius: 100, fontWeight: 500
+                    }}>Menu ✓</span>
+                  )}
+                  <span style={{ color: '#BDBDBD', fontSize: 20 }}>›</span>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  )
 }

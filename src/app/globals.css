@@ -1,26 +1,42 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --green-primary: #2E7D32;
+  --green-light: #E8F5E9;
+  --green-dark: #1B4332;
+  --orange-alert: #E65100;
+  --orange-light: #FFF3E0;
+  --red-danger: #C62828;
+  --red-light: #FFEBEE;
+  --gray-bg: #F8F9FA;
+  --gray-border: #E0E0E0;
+  --text-main: #1a1a1a;
+  --text-muted: #888888;
+  --radius: 0.625rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #F8F9FA;
+  color: var(--text-main);
+  font-family: -apple-system, 'SF Pro Display', BlinkMacSystemFont, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
 }

@@ -164,7 +164,6 @@ export default function Doodle({ mealId, isOrganizer }: Props) {
             <input
               type="time" value={newTime}
               onChange={e => setNewTime(e.target.value)}
-              placeholder="Heure (optionnel)"
               style={{
                 padding: '10px 12px', borderRadius: 10,
                 border: '0.5px solid #E0DDD6', fontSize: 13,
@@ -201,8 +200,7 @@ export default function Doodle({ mealId, isOrganizer }: Props) {
 
             return (
               <div key={date.id} style={{
-                borderRadius: 14, padding: '12px 14px',
-                marginBottom: 8,
+                borderRadius: 14, padding: '12px 14px', marginBottom: 8,
                 background: isBest ? '#E8F0E8' : '#F7F5F0',
                 border: isBest ? '1.5px solid #3B6E3F' : '0.5px solid #E8E4DC'
               }}>
@@ -225,10 +223,7 @@ export default function Doodle({ mealId, isOrganizer }: Props) {
                     )}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{
-                      fontSize: 13, fontWeight: 700,
-                      color: isBest ? '#3B6E3F' : '#888'
-                    }}>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: isBest ? '#3B6E3F' : '#888' }}>
                       {score}/{guests.length}
                     </span>
                     {isOrganizer && (
@@ -245,13 +240,13 @@ export default function Doodle({ mealId, isOrganizer }: Props) {
                     {guests.map(guest => {
                       const vote = votes.find(v => v.meal_date_id === date.id && v.profile_id === guest.id)
                       return (
-                        <div key={guest.id} style={{
+                        <div key={guest.id} title={guest.name} style={{
                           width: 28, height: 28, borderRadius: '50%',
                           background: vote?.available ? '#3B6E3F' : vote ? '#FFEBEE' : '#F0F0F0',
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
                           fontSize: 11, fontWeight: 700,
                           color: vote?.available ? 'white' : vote ? '#C62828' : '#AAA',
-                          title: guest.name
+                          overflow: 'hidden'
                         }}>
                           {guest.avatar_url
                             ? <img src={guest.avatar_url} style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover' }} alt={guest.name} />
@@ -264,8 +259,7 @@ export default function Doodle({ mealId, isOrganizer }: Props) {
 
                   <button onClick={() => toggleVote(date.id)} style={{
                     padding: '7px 16px', borderRadius: 100,
-                    border: 'none', fontSize: 12, fontWeight: 600,
-                    cursor: 'pointer',
+                    border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer',
                     background: userVote?.available ? '#3B6E3F' : userVote ? '#FFEBEE' : '#F0F0F0',
                     color: userVote?.available ? 'white' : userVote ? '#C62828' : '#888'
                   }}>

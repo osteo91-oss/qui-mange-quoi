@@ -81,7 +81,7 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
   ) => {
     if (!meal) return
     const menu = selected.map(s => ({
-      course: s.course,
+      course: s.course as 'entrée' | 'plat' | 'dessert' | 'apéro',
       name: s.dish.name,
       description: s.dish.description,
       compatible_with: guests.map(g => g.name),

@@ -14,19 +14,22 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
   const [guests, setGuests] = useState<Profile[]>([])
   const [generating, setGenerating] = useState(false)
   const [copied, setCopied] = useState(false)
-  const [activeTab, setActiveTab] = useState<'invites' | 'dates' | 'synthese' | 'menus'>('invites')
   const [isOrganizer, setIsOrganizer] = useState(false)
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState<'invites' | 'dates' | 'synthese' | 'menus'>('dates')
 
   useEffect(() => {
     const load = async () => {
       const { data: { user } } = await supabase.auth.getUser()
-      if (user) setCurrentUserId(user.id)
 
       const { data: mealData } = await supabase
         .from('meals').select('*').eq('id', id).single()
       setMeal(mealData)
-      if (user && mealData) setIsOrganizer(mealData.organizer_id === user.id)
+
+      if (user && mealData) {
+        const organizer = mealData.organizer_id === user.id
+        setIsOrganizer(organizer)
+        setActiveTab(organizer ? 'invites' : 'dates')
+      }
 
       const { data: guestData } = await supabase
         .from('meal_guests')
@@ -48,7 +51,7 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
   const shareWhatsApp = () => {
     if (!meal) return
     const link = `${window.location.origin}/rejoindre/${meal.invite_token}`
-    const text = `Tu es invité(e) au repas "${meal.name}" ! Rejoins-nous et remplis ton profil alimentaire ici : ${link}`
+    const text = `Tu es invité(e) au repas "${meal.name}" !\n\n👉 Rejoins-nous, indique tes disponibilités et ton profil alimentaire ici : ${link}`
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')
   }
 
@@ -81,21 +84,30 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
   const allAllergies = [...new Set(guests.flatMap(g => g.allergies))]
   const allDislikes = [...new Set(guests.flatMap(g => g.dislikes))]
 
+  const organizerTabs = ['invites', 'dates', 'synthese', 'menus'] as const
+  const guestTabs = ['dates'] as const
+
+  const tabs = isOrganizer ? organizerTabs : guestTabs
+
+  const tabLabels: Record<string, string> = {
+    invites: '👥 Invités',
+    dates: '🗓️ Dates',
+    synthese: '📊 Synthèse',
+    menus: '✨ Menus',
+  }
+
   return (
     <div style={{ maxWidth: 480, margin: '0 auto', background: '#F7F5F0', minHeight: '100vh' }}>
 
-      <div style={{
-        background: 'white',
-        borderBottom: '0.5px solid #E8E4DC',
-      }}>
+      <div style={{ background: 'white', borderBottom: '0.5px solid #E8E4DC' }}>
         {meal.photo_url ? (
           <div style={{ position: 'relative' }}>
             <img src={meal.photo_url} alt={meal.name}
               style={{ width: '100%', height: 180, objectFit: 'cover' }} />
             <div style={{
               position: 'absolute', top: 0, left: 0, right: 0,
-              background: 'linear-gradient(to bottom, rgba(0,0,0,0.4), transparent)',
-              padding: '16px 16px 40px',
+              background: 'linear-gradient(to bottom, rgba(0,0,0,0.5), transparent)',
+              padding: '16px',
               display: 'flex', alignItems: 'center', gap: 12
             }}>
               <button onClick={() => router.push('/')} style={{
@@ -103,9 +115,16 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
                 borderRadius: '50%', width: 34, height: 34,
                 fontSize: 18, cursor: 'pointer', color: '#333'
               }}>‹</button>
-              <p style={{ color: 'white', fontWeight: 700, fontSize: 18, margin: 0, textShadow: '0 1px 4px rgba(0,0,0,0.3)' }}>
-                {meal.name}
-              </p>
+              <div>
+                <p style={{ color: 'white', fontWeight: 700, fontSize: 18, margin: 0, textShadow: '0 1px 4px rgba(0,0,0,0.3)' }}>
+                  {meal.name}
+                </p>
+                {!isOrganizer && (
+                  <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: 12, margin: '2px 0 0' }}>
+                    Vous êtes invité(e) 🎉
+                  </p>
+                )}
+              </div>
             </div>
           </div>
         ) : (
@@ -116,9 +135,9 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
             }}>‹</button>
             <div>
               <h1 style={{ fontSize: 18, fontWeight: 700, color: '#1B3A1E', margin: 0 }}>{meal.name}</h1>
-              {meal.date && (
-                <p style={{ fontSize: 12, color: '#AAA', margin: '2px 0 0' }}>
-                  {new Date(meal.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
+              {!isOrganizer && (
+                <p style={{ fontSize: 12, color: '#3B6E3F', margin: '2px 0 0', fontWeight: 500 }}>
+                  Vous êtes invité(e) 🎉
                 </p>
               )}
             </div>
@@ -126,14 +145,14 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
         )}
 
         <div style={{ padding: '12px 16px', display: 'flex', gap: 6, overflowX: 'auto' }}>
-          {(['invites', 'dates', 'synthese', 'menus'] as const).map(tab => (
-            <button key={tab} onClick={() => setActiveTab(tab)} style={{
+          {tabs.map(tab => (
+            <button key={tab} onClick={() => setActiveTab(tab as any)} style={{
               flexShrink: 0, padding: '8px 16px', borderRadius: 100,
               border: 'none', fontSize: 12, fontWeight: 500, cursor: 'pointer',
               background: activeTab === tab ? '#3B6E3F' : '#F7F5F0',
               color: activeTab === tab ? 'white' : '#888'
             }}>
-              {tab === 'invites' ? '👥 Invités' : tab === 'dates' ? '🗓️ Dates' : tab === 'synthese' ? '📊 Synthèse' : '✨ Menus'}
+              {tabLabels[tab]}
             </button>
           ))}
         </div>
@@ -141,11 +160,14 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
 
       <div style={{ padding: '16px 16px 100px' }}>
 
-        {activeTab === 'invites' && (
+        {activeTab === 'invites' && isOrganizer && (
           <div>
             <div style={{ background: 'white', borderRadius: 16, padding: 16, border: '0.5px solid #E8E4DC', marginBottom: 12 }}>
               <p style={{ fontSize: 11, fontWeight: 600, color: '#AAA', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>
                 Inviter des convives
+              </p>
+              <p style={{ fontSize: 12, color: '#888', marginBottom: 10, lineHeight: 1.5 }}>
+                Partagez ce lien — vos invités pourront indiquer leurs disponibilités et leur profil alimentaire.
               </p>
               <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
                 <input readOnly
@@ -226,23 +248,37 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
               )}
             </div>
 
-            {guests.length > 0 && (
-              <button onClick={() => setActiveTab('dates')} style={{
-                width: '100%', padding: '14px',
-                background: '#3B6E3F', color: 'white',
-                border: 'none', borderRadius: 100,
-                fontSize: 15, fontWeight: 600, cursor: 'pointer'
-              }}>
-                Choisir une date →
-              </button>
-            )}
+            <button onClick={() => setActiveTab('dates')} style={{
+              width: '100%', padding: '14px',
+              background: '#3B6E3F', color: 'white',
+              border: 'none', borderRadius: 100,
+              fontSize: 15, fontWeight: 600, cursor: 'pointer'
+            }}>
+              Gérer les dates →
+            </button>
           </div>
         )}
 
         {activeTab === 'dates' && (
           <div>
+            {!isOrganizer && (
+              <div style={{
+                background: '#E8F0E8', borderRadius: 14, padding: '12px 16px',
+                marginBottom: 12, display: 'flex', gap: 10, alignItems: 'flex-start'
+              }}>
+                <span style={{ fontSize: 20 }}>🗓️</span>
+                <div>
+                  <p style={{ fontSize: 13, fontWeight: 600, color: '#1B3A1E', margin: 0 }}>
+                    Indiquez vos disponibilités
+                  </p>
+                  <p style={{ fontSize: 12, color: '#5A8A5C', margin: '2px 0 0' }}>
+                    L'organisateur choisira la meilleure date pour tous.
+                  </p>
+                </div>
+              </div>
+            )}
             <Doodle mealId={id} isOrganizer={isOrganizer} />
-            {guests.length > 0 && (
+            {isOrganizer && guests.length > 0 && (
               <button onClick={() => setActiveTab('synthese')} style={{
                 width: '100%', padding: '14px', marginTop: 8,
                 background: '#3B6E3F', color: 'white',
@@ -255,7 +291,7 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
           </div>
         )}
 
-        {activeTab === 'synthese' && (
+        {activeTab === 'synthese' && isOrganizer && (
           <div>
             <div style={{ background: 'white', borderRadius: 16, padding: 16, border: '0.5px solid #E8E4DC', marginBottom: 12 }}>
               <CompatScore score={meal.compatibility_score || Math.max(60, Math.round(100 - (allAllergies.length + allDislikes.length) * 5))} />
@@ -310,38 +346,42 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
               </div>
             )}
 
-            <button onClick={generateMenu} disabled={generating} style={{
+            <button onClick={() => setActiveTab('menus')} style={{
               width: '100%', padding: '14px',
-              background: generating ? '#888' : '#E8874A',
-              color: 'white', border: 'none', borderRadius: 100,
-              fontSize: 15, fontWeight: 600, cursor: 'pointer', marginBottom: 8
+              background: '#E8874A', color: 'white',
+              border: 'none', borderRadius: 100,
+              fontSize: 15, fontWeight: 600, cursor: 'pointer'
             }}>
-              {generating ? '✨ Génération en cours...' : '✨ Générer le menu avec l\'IA'}
+              Composer le menu →
             </button>
           </div>
         )}
 
-        {activeTab === 'menus' && (
+        {activeTab === 'menus' && isOrganizer && (
           <div>
             {!meal.ai_menu ? (
-              <div style={{ background: 'white', borderRadius: 16, padding: 32, border: '0.5px solid #E8E4DC', textAlign: 'center' }}>
-                <p style={{ fontSize: 32, marginBottom: 12 }}>✨</p>
-                <p style={{ fontWeight: 600, color: '#1B3A1E', marginBottom: 6 }}>Pas encore de menu</p>
-                <p style={{ fontSize: 13, color: '#AAA', marginBottom: 20, lineHeight: 1.5 }}>
-                  Allez dans l'onglet Synthèse<br />pour générer votre menu.
+              <div style={{ background: 'white', borderRadius: 16, padding: 24, border: '0.5px solid #E8E4DC' }}>
+                <p style={{ fontSize: 15, fontWeight: 700, color: '#1B3A1E', marginBottom: 16 }}>
+                  Composer le menu
                 </p>
-                <button onClick={() => setActiveTab('synthese')} style={{
-                  background: '#3B6E3F', color: 'white', border: 'none',
-                  borderRadius: 100, padding: '12px 24px',
-                  fontSize: 14, fontWeight: 500, cursor: 'pointer'
+
+                <p style={{ fontSize: 11, fontWeight: 600, color: '#AAA', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>
+                  Que souhaitez-vous servir ?
+                </p>
+
+                <button onClick={generateMenu} disabled={generating} style={{
+                  width: '100%', padding: '14px',
+                  background: generating ? '#888' : '#E8874A',
+                  color: 'white', border: 'none', borderRadius: 100,
+                  fontSize: 15, fontWeight: 600, cursor: 'pointer'
                 }}>
-                  Voir la synthèse
+                  {generating ? '✨ Génération en cours...' : '✨ Générer le menu avec l\'IA'}
                 </button>
               </div>
             ) : (
               <div>
                 <p style={{ fontSize: 13, color: '#AAA', marginBottom: 12 }}>
-                  {meal.ai_menu.length} suggestions pour vous
+                  {meal.ai_menu.length} plats suggérés
                 </p>
                 {meal.ai_menu.map((item, i) => (
                   <div key={i} style={{
@@ -349,23 +389,18 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
                     border: '0.5px solid #E8E4DC', marginBottom: 10
                   }}>
                     <div style={{
-                      height: 80, background: '#E8F0E8',
+                      height: 70, background: '#E8F0E8',
                       display: 'flex', alignItems: 'center',
-                      justifyContent: 'center', fontSize: 36
+                      justifyContent: 'center', fontSize: 32
                     }}>
-                      {item.course === 'entrée' ? '🥗' : item.course === 'plat' ? '🍽️' : '🍮'}
+                      {item.course === 'entrée' ? '🥗' : item.course === 'plat' ? '🍽️' : item.course === 'apéro' ? '🥂' : '🍮'}
                     </div>
                     <div style={{ padding: '12px 16px' }}>
                       <p style={{ fontSize: 11, color: '#AAA', textTransform: 'uppercase', letterSpacing: 1, margin: '0 0 4px' }}>{item.course}</p>
                       <p style={{ fontSize: 15, fontWeight: 600, color: '#1B3A1E', margin: '0 0 4px' }}>{item.name}</p>
                       <p style={{ fontSize: 13, color: '#888', margin: '0 0 8px' }}>{item.description}</p>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                        {item.compatible_with.map(c => (
-                          <span key={c} style={{ fontSize: 11, background: '#E8F0E8', color: '#3B6E3F', padding: '3px 8px', borderRadius: 100 }}>{c}</span>
-                        ))}
-                      </div>
                       {item.warnings.map((w, j) => (
-                        <div key={j} style={{ marginTop: 8, background: '#FFF3E0', borderRadius: 8, padding: '6px 10px', fontSize: 12, color: '#E65100' }}>
+                        <div key={j} style={{ marginTop: 6, background: '#FFF3E0', borderRadius: 8, padding: '6px 10px', fontSize: 12, color: '#E65100' }}>
                           ⚠️ {w}
                         </div>
                       ))}

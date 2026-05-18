@@ -69,7 +69,7 @@ export default function Doodle({ mealId, isOrganizer }: Props) {
   }, [mealId])
 
   const addDate = async () => {
-    if (!newDate) return
+    if (!newDate || dates.length >= 5) return
     setLoading(true)
     const { data } = await supabase
       .from('meal_dates')
@@ -149,36 +149,47 @@ export default function Doodle({ mealId, isOrganizer }: Props) {
           padding: 16, border: '0.5px solid #E8E4DC', marginBottom: 12
         }}>
           <p style={{ fontSize: 11, fontWeight: 600, color: '#AAA', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>
-            Proposer une date
+            Proposer une date ({dates.length}/5)
           </p>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 }}>
-            <input
-              type="date" value={newDate}
-              onChange={e => setNewDate(e.target.value)}
-              style={{
-                padding: '10px 12px', borderRadius: 10,
-                border: '0.5px solid #E0DDD6', fontSize: 13,
-                outline: 'none', background: '#F7F5F0', color: '#1a1a1a'
-              }}
-            />
-            <input
-              type="time" value={newTime}
-              onChange={e => setNewTime(e.target.value)}
-              style={{
-                padding: '10px 12px', borderRadius: 10,
-                border: '0.5px solid #E0DDD6', fontSize: 13,
-                outline: 'none', background: '#F7F5F0', color: '#1a1a1a'
-              }}
-            />
-          </div>
-          <button onClick={addDate} disabled={loading || !newDate} style={{
-            width: '100%', padding: '10px',
-            background: newDate ? '#3B6E3F' : '#E0E0E0',
-            color: 'white', border: 'none', borderRadius: 100,
-            fontSize: 13, fontWeight: 600, cursor: newDate ? 'pointer' : 'default'
-          }}>
-            + Ajouter cette date
-          </button>
+          {dates.length >= 5 ? (
+            <div style={{
+              background: '#FFF3E0', borderRadius: 10, padding: '10px 14px',
+              fontSize: 13, color: '#E65100', textAlign: 'center', fontWeight: 500
+            }}>
+              Maximum 5 dates atteint — supprimez une date pour en ajouter une autre
+            </div>
+          ) : (
+            <>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 }}>
+                <input
+                  type="date" value={newDate}
+                  onChange={e => setNewDate(e.target.value)}
+                  style={{
+                    padding: '10px 12px', borderRadius: 10,
+                    border: '0.5px solid #E0DDD6', fontSize: 13,
+                    outline: 'none', background: '#F7F5F0', color: '#1a1a1a'
+                  }}
+                />
+                <input
+                  type="time" value={newTime}
+                  onChange={e => setNewTime(e.target.value)}
+                  style={{
+                    padding: '10px 12px', borderRadius: 10,
+                    border: '0.5px solid #E0DDD6', fontSize: 13,
+                    outline: 'none', background: '#F7F5F0', color: '#1a1a1a'
+                  }}
+                />
+              </div>
+              <button onClick={addDate} disabled={loading || !newDate} style={{
+                width: '100%', padding: '10px',
+                background: newDate ? '#3B6E3F' : '#E0E0E0',
+                color: 'white', border: 'none', borderRadius: 100,
+                fontSize: 13, fontWeight: 600, cursor: newDate ? 'pointer' : 'default'
+              }}>
+                + Ajouter cette date
+              </button>
+            </>
+          )}
         </div>
       )}
 
@@ -244,9 +255,8 @@ export default function Doodle({ mealId, isOrganizer }: Props) {
                           width: 28, height: 28, borderRadius: '50%',
                           background: vote?.available ? '#3B6E3F' : vote ? '#FFEBEE' : '#F0F0F0',
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          fontSize: 11, fontWeight: 700,
+                          fontSize: 11, fontWeight: 700, overflow: 'hidden',
                           color: vote?.available ? 'white' : vote ? '#C62828' : '#AAA',
-                          overflow: 'hidden'
                         }}>
                           {guest.avatar_url
                             ? <img src={guest.avatar_url} style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover' }} alt={guest.name} />

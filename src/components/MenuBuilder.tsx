@@ -30,7 +30,6 @@ export default function MenuBuilder({ suggestions, onValidate }: Props) {
   const [selected, setSelected] = useState<Record<string, number>>({})
 
   const courses = COURSE_ORDER.filter(c => suggestions[c])
-
   const allSelected = courses.every(c => selected[c] !== undefined)
 
   const handleValidate = () => {
@@ -64,9 +63,10 @@ export default function MenuBuilder({ suggestions, onValidate }: Props) {
           </p>
 
           {suggestions[course].map((dish, i) => (
-            <div key={i} onClick={() => setSelected({ ...selected, [course]: i })}
+            <div key={i}
+              onClick={() => setSelected({ ...selected, [course]: i })}
               style={{
-                background: 'white', borderRadius: 16, padding: '14px 16px',
+                borderRadius: 16, padding: '14px 16px',
                 border: selected[course] === i ? '2px solid #3B6E3F' : '0.5px solid #E8E4DC',
                 marginBottom: 8, cursor: 'pointer',
                 background: selected[course] === i ? '#E8F0E8' : 'white'
@@ -103,7 +103,7 @@ export default function MenuBuilder({ suggestions, onValidate }: Props) {
         </div>
       ))}
 
-      {allSelected && (
+      {allSelected ? (
         <button onClick={handleValidate} style={{
           width: '100%', padding: '14px',
           background: '#3B6E3F', color: 'white',
@@ -113,9 +113,7 @@ export default function MenuBuilder({ suggestions, onValidate }: Props) {
         }}>
           Valider ce menu →
         </button>
-      )}
-
-      {!allSelected && (
+      ) : (
         <p style={{ textAlign: 'center', fontSize: 12, color: '#AAA', marginTop: 8 }}>
           Choisissez un plat par cours pour valider
         </p>

@@ -6,6 +6,7 @@ export type Profile = {
   diets: string[]
   dislikes: string[]
   cuisines: string[]
+  avatar_url?: string | null
 }
 
 export type Meal = {
@@ -17,6 +18,10 @@ export type Meal = {
   ai_menu: MenuItem[] | null
   shopping_list: ShoppingItem[] | null
   compatibility_score: number | null
+  photo_url?: string | null
+  meal_type?: string | null
+  place?: string | null
+  time?: string | null
 }
 
 export type MenuItem = {

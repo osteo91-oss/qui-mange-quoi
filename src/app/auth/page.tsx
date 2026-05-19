@@ -69,7 +69,7 @@ export default function AuthPage() {
             src="/logo-icon.png"
             alt="Qui mange quoi"
             style={{
-              width: 90, height: 90,
+              width: 130, height: 130,
               display: 'block', margin: '0 auto 16px',
               filter: 'drop-shadow(0 6px 20px rgba(0,0,0,0.35))'
             }}

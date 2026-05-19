@@ -67,9 +67,7 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
     const data = await res.json()
     if (data.suggestions) {
       setSuggestions(data.suggestions)
-      await supabase.from('meals').update({
-        compatibility_score: data.compatibility_score,
-      }).eq('id', id)
+      await supabase.from('meals').update({ compatibility_score: data.compatibility_score }).eq('id', id)
       setMeal({ ...meal, compatibility_score: data.compatibility_score })
     }
     setGenerating(false)
@@ -87,17 +85,13 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
       compatible_with: guests.map(g => g.name),
       warnings: s.dish.warnings,
     }))
-    await supabase.from('meals').update({
-      ai_menu: menu,
-      shopping_list: shoppingList,
-    }).eq('id', id)
+    await supabase.from('meals').update({ ai_menu: menu, shopping_list: shoppingList }).eq('id', id)
     setMeal({ ...meal, ai_menu: menu, shopping_list: shoppingList })
     setSuggestions(null)
   }
 
   if (!meal) return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#F7F5F0' }}>
-      <img src="/logo-icon.png" alt="Logo" style={{ width: 56, marginBottom: 12, opacity: 0.5 }} />
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#F0F7F0' }}>
       <p style={{ color: '#AAA' }}>Chargement...</p>
     </div>
   )
@@ -114,27 +108,34 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
     synthese: '📊 Synthèse',
     menus: '✨ Menus',
   }
+  const tabColors: Record<string, string> = {
+    invites: '#43A047',
+    dates: dateMode === 'doodle' ? '#F57C00' : '#1976D2',
+    synthese: '#7B1FA2',
+    menus: '#E65100',
+  }
 
   return (
-    <div style={{ maxWidth: 480, margin: '0 auto', background: '#F7F5F0', minHeight: '100vh' }}>
+    <div style={{ maxWidth: 480, margin: '0 auto', background: '#F0F7F0', minHeight: '100vh' }}>
 
-      <div style={{ background: 'white', borderBottom: '0.5px solid #E8E4DC' }}>
+      {/* Header avec photo */}
+      <div style={{ position: 'relative' }}>
         {meal.photo_url ? (
-          <div style={{ position: 'relative' }}>
+          <div style={{ position: 'relative', height: 200 }}>
             <img src={meal.photo_url} alt={meal.name}
-              style={{ width: '100%', height: 180, objectFit: 'cover' }} />
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             <div style={{
-              position: 'absolute', top: 0, left: 0, right: 0,
-              background: 'linear-gradient(to bottom, rgba(0,0,0,0.5), transparent)',
-              padding: '16px', display: 'flex', alignItems: 'center', gap: 12
-            }}>
+              position: 'absolute', inset: 0,
+              background: 'linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.6) 100%)',
+            }} />
+            <div style={{ position: 'absolute', top: 16, left: 16, right: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
               <button onClick={() => router.push('/')} style={{
-                background: 'rgba(255,255,255,0.9)', border: 'none',
-                borderRadius: '50%', width: 34, height: 34,
-                fontSize: 18, cursor: 'pointer', color: '#333'
+                background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(8px)',
+                border: 'none', borderRadius: '50%', width: 36, height: 36,
+                fontSize: 18, cursor: 'pointer', color: 'white'
               }}>‹</button>
-              <div>
-                <p style={{ color: 'white', fontWeight: 700, fontSize: 18, margin: 0, textShadow: '0 1px 4px rgba(0,0,0,0.3)' }}>
+              <div style={{ flex: 1 }}>
+                <p style={{ color: 'white', fontWeight: 800, fontSize: 18, margin: 0, textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}>
                   {meal.name}
                 </p>
                 {!isOrganizer && (
@@ -146,29 +147,41 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
             </div>
           </div>
         ) : (
-          <div style={{ padding: '20px 16px 0', display: 'flex', alignItems: 'center', gap: 12 }}>
-            <button onClick={() => router.push('/')} style={{
-              background: '#F7F5F0', border: 'none', borderRadius: '50%',
-              width: 36, height: 36, fontSize: 20, cursor: 'pointer', color: '#555'
-            }}>‹</button>
-            <div>
-              <h1 style={{ fontSize: 18, fontWeight: 700, color: '#1B3A1E', margin: 0 }}>{meal.name}</h1>
-              {!isOrganizer && (
-                <p style={{ fontSize: 12, color: '#43A047', margin: '2px 0 0', fontWeight: 500 }}>
-                  Vous êtes invité(e) 🎉
-                </p>
-              )}
+          <div style={{
+            background: 'linear-gradient(135deg, #1B5E20, #43A047)',
+            padding: '20px 16px 16px'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <button onClick={() => router.push('/')} style={{
+                background: 'rgba(255,255,255,0.2)', border: 'none',
+                borderRadius: '50%', width: 36, height: 36,
+                fontSize: 18, cursor: 'pointer', color: 'white'
+              }}>‹</button>
+              <div>
+                <h1 style={{ fontSize: 18, fontWeight: 800, color: 'white', margin: 0 }}>{meal.name}</h1>
+                {!isOrganizer && (
+                  <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', margin: '2px 0 0' }}>
+                    Vous êtes invité(e) 🎉
+                  </p>
+                )}
+              </div>
             </div>
           </div>
         )}
 
-        <div style={{ padding: '12px 16px', display: 'flex', gap: 6, overflowX: 'auto' }}>
+        {/* Tabs */}
+        <div style={{
+          background: 'white', padding: '12px 16px',
+          display: 'flex', gap: 8, overflowX: 'auto',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+        }}>
           {tabs.map(tab => (
             <button key={tab} onClick={() => setActiveTab(tab as any)} style={{
               flexShrink: 0, padding: '8px 16px', borderRadius: 100,
-              border: 'none', fontSize: 12, fontWeight: 500, cursor: 'pointer',
-              background: activeTab === tab ? '#43A047' : '#F7F5F0',
-              color: activeTab === tab ? 'white' : '#888'
+              border: 'none', fontSize: 12, fontWeight: 700, cursor: 'pointer',
+              background: activeTab === tab ? tabColors[tab] : '#F5F5F5',
+              color: activeTab === tab ? 'white' : '#888',
+              boxShadow: activeTab === tab ? `0 2px 8px ${tabColors[tab]}50` : 'none'
             }}>
               {tabLabels[tab]}
             </button>
@@ -178,66 +191,114 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
 
       <div style={{ padding: '16px 16px 100px' }}>
 
+        {/* Tab Invités */}
         {activeTab === 'invites' && isOrganizer && (
           <div>
-            <div style={{ background: 'white', borderRadius: 16, padding: 16, border: '0.5px solid #E8E4DC', marginBottom: 12 }}>
-              <p style={{ fontSize: 11, fontWeight: 600, color: '#AAA', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>
+            <div style={{ background: 'white', borderRadius: 20, padding: 16, boxShadow: '0 2px 12px rgba(0,0,0,0.06)', marginBottom: 12 }}>
+              <p style={{ fontSize: 11, fontWeight: 800, color: '#999', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>
                 Inviter des convives
               </p>
-              <p style={{ fontSize: 12, color: '#888', marginBottom: 10, lineHeight: 1.5 }}>
-                Partagez ce lien — vos invités pourront indiquer leurs disponibilités et leur profil alimentaire.
+              <p style={{ fontSize: 13, color: '#AAA', marginBottom: 10, lineHeight: 1.5 }}>
+                Partagez ce lien — vos invités pourront voter pour les dates et renseigner leur profil alimentaire.
               </p>
               <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
                 <input readOnly
                   value={`${typeof window !== 'undefined' ? window.location.origin : ''}/rejoindre/${meal.invite_token}`}
                   style={{
                     flex: 1, padding: '10px 12px', borderRadius: 10,
-                    border: '0.5px solid #E0DDD6', fontSize: 11,
-                    color: '#AAA', background: '#F7F5F0', outline: 'none'
+                    border: '1.5px solid #E8E8E8', fontSize: 11,
+                    color: '#AAA', background: '#F8F8F8', outline: 'none'
                   }}
                 />
                 <button onClick={copyInviteLink} style={{
                   padding: '10px 14px', borderRadius: 10,
                   background: copied ? '#388E3C' : '#43A047',
                   color: 'white', border: 'none', fontSize: 12,
-                  fontWeight: 600, cursor: 'pointer', flexShrink: 0
+                  fontWeight: 700, cursor: 'pointer', flexShrink: 0,
+                  boxShadow: '0 2px 8px rgba(67,160,71,0.3)'
                 }}>
                   {copied ? '✓' : 'Copier'}
                 </button>
               </div>
               <button onClick={shareWhatsApp} style={{
-                width: '100%', padding: '10px',
+                width: '100%', padding: '11px',
                 background: '#25D366', color: 'white',
-                border: 'none', borderRadius: 10,
-                fontSize: 13, fontWeight: 600, cursor: 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6
+                border: 'none', borderRadius: 12,
+                fontSize: 13, fontWeight: 700, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                boxShadow: '0 2px 8px rgba(37,211,102,0.3)',
+                marginBottom: 8
               }}>
                 <span>📱</span> Envoyer via WhatsApp
               </button>
+
+              <div style={{ display: 'flex', gap: 8 }}>
+                <input
+                  type="email"
+                  placeholder="Email de l'invité..."
+                  id="invite-email"
+                  style={{
+                    flex: 1, padding: '10px 12px', borderRadius: 10,
+                    border: '1.5px solid #E8E8E8', fontSize: 13,
+                    outline: 'none', background: '#F8F8F8', color: '#1a1a1a'
+                  }}
+                />
+                <button onClick={async () => {
+                  const emailInput = document.getElementById('invite-email') as HTMLInputElement
+                  const email = emailInput?.value
+                  if (!email) return
+                  const link = `${window.location.origin}/rejoindre/${meal.invite_token}`
+                  const { data: { user } } = await supabase.auth.getUser()
+                  const { data: profile } = await supabase.from('profiles').select('name').eq('id', user?.id).single()
+                  await fetch('/api/envoyer-invitation', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      guestEmail: email,
+                      guestName: email.split('@')[0],
+                      organizerName: profile?.name || 'Un ami',
+                      mealName: meal.name,
+                      inviteLink: link
+                    })
+                  })
+                  emailInput.value = ''
+                  alert(`Invitation envoyée à ${email} !`)
+                }} style={{
+                  padding: '10px 14px', borderRadius: 10,
+                  background: '#1976D2', color: 'white',
+                  border: 'none', fontSize: 12, fontWeight: 700,
+                  cursor: 'pointer', flexShrink: 0,
+                  boxShadow: '0 2px 8px rgba(25,118,210,0.3)'
+                }}>
+                  📧 Email
+                </button>
+              </div>
             </div>
 
-            <div style={{ background: 'white', borderRadius: 16, padding: 16, border: '0.5px solid #E8E4DC', marginBottom: 16 }}>
-              <p style={{ fontSize: 11, fontWeight: 600, color: '#AAA', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>
+            <div style={{ background: 'white', borderRadius: 20, padding: 16, boxShadow: '0 2px 12px rgba(0,0,0,0.06)', marginBottom: 16 }}>
+              <p style={{ fontSize: 11, fontWeight: 800, color: '#999', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>
                 Invités ({guests.length})
               </p>
               {guests.length === 0 ? (
-                <p style={{ fontSize: 13, color: '#AAA', textAlign: 'center', padding: '12px 0' }}>
-                  Partagez le lien pour inviter vos convives 👆
-                </p>
+                <div style={{ textAlign: 'center', padding: '16px 0' }}>
+                  <p style={{ fontSize: 32, marginBottom: 8 }}>👥</p>
+                  <p style={{ fontSize: 13, color: '#AAA' }}>Partagez le lien pour inviter vos convives</p>
+                </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
                   {guests.map((g, i) => (
                     <div key={g.id} style={{
                       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                       padding: '10px 0',
-                      borderBottom: i < guests.length - 1 ? '0.5px solid #F5F5F5' : 'none'
+                      borderBottom: i < guests.length - 1 ? '1px solid #F5F5F5' : 'none'
                     }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         <div style={{
-                          width: 38, height: 38, borderRadius: '50%',
-                          background: '#E8F0E8', overflow: 'hidden',
+                          width: 40, height: 40, borderRadius: '50%',
+                          background: '#E8F5E9', overflow: 'hidden',
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          fontSize: 15, fontWeight: 700, color: '#43A047'
+                          fontSize: 16, fontWeight: 800, color: '#43A047',
+                          boxShadow: '0 2px 6px rgba(0,0,0,0.1)'
                         }}>
                           {(g as any).avatar_url
                             ? <img src={(g as any).avatar_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={g.name} />
@@ -245,18 +306,18 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
                           }
                         </div>
                         <div>
-                          <p style={{ fontSize: 14, fontWeight: 500, color: '#1a1a1a', margin: 0 }}>{g.name}</p>
+                          <p style={{ fontSize: 14, fontWeight: 700, color: '#1B5E20', margin: 0 }}>{g.name}</p>
                           {g.diets.length > 0 && (
-                            <p style={{ fontSize: 11, color: '#43A047', margin: '2px 0 0' }}>{g.diets.join(', ')}</p>
+                            <span style={{ fontSize: 11, background: '#E8F5E9', color: '#43A047', padding: '2px 8px', borderRadius: 100, fontWeight: 600 }}>
+                              {g.diets[0]}
+                            </span>
                           )}
                         </div>
                       </div>
                       {g.allergies.length > 0 && (
-                        <span style={{
-                          fontSize: 11, background: '#FFEBEE',
-                          color: '#C62828', padding: '3px 8px',
-                          borderRadius: 100, fontWeight: 500
-                        }}>⚠️ {g.allergies.length}</span>
+                        <span style={{ fontSize: 11, background: '#FFEBEE', color: '#E53935', padding: '3px 8px', borderRadius: 100, fontWeight: 700 }}>
+                          ⚠️ {g.allergies.length}
+                        </span>
                       )}
                     </div>
                   ))}
@@ -268,59 +329,58 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
               width: '100%', padding: '14px',
               background: '#43A047', color: 'white',
               border: 'none', borderRadius: 100,
-              fontSize: 15, fontWeight: 600, cursor: 'pointer'
+              fontSize: 15, fontWeight: 700, cursor: 'pointer',
+              boxShadow: '0 4px 12px rgba(67,160,71,0.4)'
             }}>
               {dateMode === 'doodle' ? 'Gérer le sondage →' : 'Voir la date →'}
             </button>
           </div>
         )}
 
+        {/* Tab Dates */}
         {activeTab === 'dates' && (
           <div>
             {dateMode === 'fixed' ? (
-              <div style={{ background: 'white', borderRadius: 16, padding: 20, border: '0.5px solid #E8E4DC', marginBottom: 12 }}>
-                <p style={{ fontSize: 11, fontWeight: 600, color: '#AAA', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>
-                  Date du repas
+              <div style={{ background: 'white', borderRadius: 20, padding: 20, boxShadow: '0 2px 12px rgba(0,0,0,0.06)', marginBottom: 12 }}>
+                <p style={{ fontSize: 11, fontWeight: 800, color: '#999', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 14 }}>
+                  📅 Date du repas
                 </p>
                 {meal.date ? (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
                     <div style={{
-                      width: 52, height: 52, borderRadius: 14,
-                      background: '#E8F0E8', display: 'flex',
-                      alignItems: 'center', justifyContent: 'center', fontSize: 24
+                      width: 56, height: 56, borderRadius: 16,
+                      background: 'linear-gradient(135deg, #E3F2FD, #BBDEFB)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26,
+                      boxShadow: '0 2px 8px rgba(25,118,210,0.2)'
                     }}>📅</div>
                     <div>
-                      <p style={{ fontSize: 16, fontWeight: 700, color: '#1B3A1E', margin: 0, textTransform: 'capitalize' }}>
+                      <p style={{ fontSize: 16, fontWeight: 800, color: '#1B5E20', margin: 0, textTransform: 'capitalize' }}>
                         {new Date(meal.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
                       </p>
-                      {(meal as any).time && (
-                        <p style={{ fontSize: 13, color: '#888', margin: '4px 0 0' }}>🕐 {(meal as any).time}</p>
-                      )}
-                      {(meal as any).place && (
-                        <p style={{ fontSize: 13, color: '#888', margin: '4px 0 0' }}>📍 {(meal as any).place}</p>
-                      )}
+                      {(meal as any).time && <p style={{ fontSize: 13, color: '#AAA', margin: '4px 0 0' }}>🕐 {(meal as any).time}</p>}
+                      {(meal as any).place && <p style={{ fontSize: 13, color: '#AAA', margin: '4px 0 0' }}>📍 {(meal as any).place}</p>}
                     </div>
                   </div>
                 ) : (
-                  <p style={{ fontSize: 13, color: '#AAA', textAlign: 'center', padding: '12px 0' }}>
-                    Aucune date définie
-                  </p>
+                  <p style={{ fontSize: 13, color: '#AAA', textAlign: 'center', padding: '12px 0' }}>Aucune date définie</p>
                 )}
               </div>
             ) : (
               <>
                 {!isOrganizer && (
                   <div style={{
-                    background: '#E8F0E8', borderRadius: 14, padding: '12px 16px',
-                    marginBottom: 12, display: 'flex', gap: 10, alignItems: 'flex-start'
+                    background: 'linear-gradient(135deg, #FFF3E0, #FFE0B2)',
+                    borderRadius: 16, padding: '14px 16px',
+                    marginBottom: 12, display: 'flex', gap: 10, alignItems: 'flex-start',
+                    border: '1px solid #FFE0B2'
                   }}>
-                    <span style={{ fontSize: 20 }}>🗳️</span>
+                    <span style={{ fontSize: 22 }}>🗳️</span>
                     <div>
-                      <p style={{ fontSize: 13, fontWeight: 600, color: '#1B3A1E', margin: 0 }}>
+                      <p style={{ fontSize: 13, fontWeight: 700, color: '#E65100', margin: 0 }}>
                         Indiquez vos disponibilités
                       </p>
-                      <p style={{ fontSize: 12, color: '#5A8A5C', margin: '2px 0 0' }}>
-                        L'organisateur choisira la meilleure date pour tous.
+                      <p style={{ fontSize: 12, color: '#F57C00', margin: '2px 0 0' }}>
+                        L'organisateur choisira la meilleure date.
                       </p>
                     </div>
                   </div>
@@ -330,10 +390,11 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
             )}
             {isOrganizer && guests.length > 0 && (
               <button onClick={() => setActiveTab('synthese')} style={{
-                width: '100%', padding: '14px', marginTop: 8,
-                background: '#43A047', color: 'white',
+                width: '100%', padding: '14px', marginTop: 12,
+                background: '#7B1FA2', color: 'white',
                 border: 'none', borderRadius: 100,
-                fontSize: 15, fontWeight: 600, cursor: 'pointer'
+                fontSize: 15, fontWeight: 700, cursor: 'pointer',
+                boxShadow: '0 4px 12px rgba(123,31,162,0.3)'
               }}>
                 Voir la synthèse →
               </button>
@@ -341,56 +402,54 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
           </div>
         )}
 
+        {/* Tab Synthèse */}
         {activeTab === 'synthese' && isOrganizer && (
           <div>
-            <div style={{ background: 'white', borderRadius: 16, padding: 16, border: '0.5px solid #E8E4DC', marginBottom: 12 }}>
+            <div style={{ background: 'white', borderRadius: 20, padding: 16, boxShadow: '0 2px 12px rgba(0,0,0,0.06)', marginBottom: 12 }}>
               <CompatScore score={meal.compatibility_score || Math.max(60, Math.round(100 - (allAllergies.length + allDislikes.length) * 5))} />
-              <div style={{ display: 'flex', justifyContent: 'center', gap: 24, marginBottom: 16 }}>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: 24, marginBottom: 8 }}>
                 <div style={{ textAlign: 'center' }}>
-                  <p style={{ fontSize: 20, fontWeight: 700, color: '#1B3A1E', margin: 0 }}>{guests.length}</p>
-                  <p style={{ fontSize: 11, color: '#AAA', margin: 0 }}>invités</p>
+                  <p style={{ fontSize: 24, fontWeight: 800, color: '#43A047', margin: 0 }}>{guests.length}</p>
+                  <p style={{ fontSize: 11, color: '#AAA', margin: 0, fontWeight: 600 }}>invités</p>
                 </div>
                 <div style={{ textAlign: 'center' }}>
-                  <p style={{ fontSize: 20, fontWeight: 700, color: '#1B3A1E', margin: 0 }}>
+                  <p style={{ fontSize: 24, fontWeight: 800, color: '#1976D2', margin: 0 }}>
                     {guests.reduce((acc, g) => acc + g.cuisines.length + g.diets.length, 0)}
                   </p>
-                  <p style={{ fontSize: 11, color: '#AAA', margin: 0 }}>préférences</p>
+                  <p style={{ fontSize: 11, color: '#AAA', margin: 0, fontWeight: 600 }}>préférences</p>
                 </div>
                 <div style={{ textAlign: 'center' }}>
-                  <p style={{ fontSize: 20, fontWeight: 700, color: '#C62828', margin: 0 }}>{allAllergies.length}</p>
-                  <p style={{ fontSize: 11, color: '#AAA', margin: 0 }}>contraintes</p>
+                  <p style={{ fontSize: 24, fontWeight: 800, color: '#E53935', margin: 0 }}>{allAllergies.length}</p>
+                  <p style={{ fontSize: 11, color: '#AAA', margin: 0, fontWeight: 600 }}>contraintes</p>
                 </div>
               </div>
             </div>
 
             {(allAllergies.length > 0 || allDislikes.length > 0) && (
-              <div style={{ background: 'white', borderRadius: 16, padding: 16, border: '0.5px solid #E8E4DC', marginBottom: 12 }}>
-                <p style={{ fontSize: 11, fontWeight: 600, color: '#AAA', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>
+              <div style={{ background: 'white', borderRadius: 20, padding: 16, boxShadow: '0 2px 12px rgba(0,0,0,0.06)', marginBottom: 12 }}>
+                <p style={{ fontSize: 11, fontWeight: 800, color: '#999', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>
                   À prendre en compte
                 </p>
                 {guests.filter(g => g.allergies.length > 0 || g.dislikes.length > 0).map(g => (
                   <div key={g.id} style={{
                     display: 'flex', alignItems: 'flex-start', gap: 8,
-                    background: '#FFF8E1', borderRadius: 10,
-                    padding: '8px 12px', marginBottom: 8
+                    background: '#FFF8E1', borderRadius: 10, padding: '8px 12px', marginBottom: 8,
+                    border: '1px solid #FFE082'
                   }}>
-                    <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#E65100', marginTop: 5, flexShrink: 0 }} />
+                    <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#F57C00', marginTop: 5, flexShrink: 0 }} />
                     <div>
-                      <p style={{ fontSize: 13, fontWeight: 500, color: '#1a1a1a', margin: 0 }}>{g.name}</p>
-                      {g.allergies.length > 0 && <p style={{ fontSize: 12, color: '#C62828', margin: '2px 0 0' }}>Allergie : {g.allergies.join(', ')}</p>}
-                      {g.dislikes.length > 0 && <p style={{ fontSize: 12, color: '#E65100', margin: '2px 0 0' }}>N'aime pas : {g.dislikes.join(', ')}</p>}
+                      <p style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>{g.name}</p>
+                      {g.allergies.length > 0 && <p style={{ fontSize: 12, color: '#E53935', margin: '2px 0 0', fontWeight: 600 }}>⚠️ Allergie : {g.allergies.join(', ')}</p>}
+                      {g.dislikes.length > 0 && <p style={{ fontSize: 12, color: '#F57C00', margin: '2px 0 0' }}>N'aime pas : {g.dislikes.join(', ')}</p>}
                     </div>
                   </div>
                 ))}
-                <p style={{ fontSize: 11, fontWeight: 600, color: '#AAA', letterSpacing: 1, textTransform: 'uppercase', margin: '12px 0 8px' }}>
-                  Aliments à éviter
-                </p>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
                   {allAllergies.map(a => (
-                    <span key={a} style={{ fontSize: 12, background: '#FFEBEE', color: '#C62828', padding: '4px 10px', borderRadius: 100, fontWeight: 500 }}>{a}</span>
+                    <span key={a} style={{ fontSize: 12, background: '#FFEBEE', color: '#E53935', padding: '4px 10px', borderRadius: 100, fontWeight: 700 }}>{a}</span>
                   ))}
                   {allDislikes.map(d => (
-                    <span key={d} style={{ fontSize: 12, background: '#FFF3E0', color: '#E65100', padding: '4px 10px', borderRadius: 100, fontWeight: 500 }}>{d}</span>
+                    <span key={d} style={{ fontSize: 12, background: '#FFF3E0', color: '#F57C00', padding: '4px 10px', borderRadius: 100, fontWeight: 600 }}>{d}</span>
                   ))}
                 </div>
               </div>
@@ -398,56 +457,49 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
 
             <button onClick={() => setActiveTab('menus')} style={{
               width: '100%', padding: '14px',
-              background: '#E8874A', color: 'white',
+              background: '#E65100', color: 'white',
               border: 'none', borderRadius: 100,
-              fontSize: 15, fontWeight: 600, cursor: 'pointer'
+              fontSize: 15, fontWeight: 700, cursor: 'pointer',
+              boxShadow: '0 4px 12px rgba(230,81,0,0.4)'
             }}>
               Composer le menu →
             </button>
           </div>
         )}
 
+        {/* Tab Menus */}
         {activeTab === 'menus' && isOrganizer && (
           <div>
             {!suggestions && !meal.ai_menu && (
-              <div style={{ background: 'white', borderRadius: 16, padding: 20, border: '0.5px solid #E8E4DC' }}>
-                <p style={{ fontSize: 15, fontWeight: 700, color: '#1B3A1E', marginBottom: 6 }}>
-                  Composer le menu
-                </p>
-                <p style={{ fontSize: 12, color: '#888', marginBottom: 16 }}>
-                  Choisissez les cours que vous souhaitez servir.
-                </p>
+              <div style={{ background: 'white', borderRadius: 20, padding: 20, boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
+                <p style={{ fontSize: 15, fontWeight: 800, color: '#1B5E20', marginBottom: 6 }}>Composer le menu</p>
+                <p style={{ fontSize: 12, color: '#AAA', marginBottom: 20 }}>Choisissez les cours que vous souhaitez servir.</p>
 
-                <p style={{ fontSize: 11, fontWeight: 600, color: '#AAA', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>
-                  Cours à inclure
-                </p>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
                   {[
-                    { key: 'apero', label: '🥂 Apéritif', desc: 'Amuse-bouches et boissons' },
-                    { key: 'entree', label: '🥗 Entrée', desc: 'Salade, soupe, verrines...' },
-                    { key: 'plat', label: '🍽️ Plat principal', desc: 'Viande, poisson, végétarien...' },
-                    { key: 'dessert', label: '🍮 Dessert', desc: 'Gâteau, fruits, glace...' },
-                  ].map(({ key, label, desc }) => (
+                    { key: 'apero', label: '🥂 Apéritif', desc: 'Amuse-bouches et boissons', color: '#7B1FA2', bg: '#F3E5F5' },
+                    { key: 'entree', label: '🥗 Entrée', desc: 'Salade, soupe, verrines...', color: '#1976D2', bg: '#E3F2FD' },
+                    { key: 'plat', label: '🍽️ Plat principal', desc: 'Viande, poisson, végétarien...', color: '#43A047', bg: '#E8F5E9' },
+                    { key: 'dessert', label: '🍮 Dessert', desc: 'Gâteau, fruits, glace...', color: '#F57C00', bg: '#FFF3E0' },
+                  ].map(({ key, label, desc, color, bg }) => (
                     <div key={key} onClick={() => setCourses({ ...courses, [key]: !courses[key as keyof typeof courses] })}
                       style={{
                         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                        padding: '12px 14px', borderRadius: 12, cursor: 'pointer',
-                        background: courses[key as keyof typeof courses] ? '#E8F0E8' : '#F7F5F0',
-                        border: courses[key as keyof typeof courses] ? '1.5px solid #43A047' : '0.5px solid #E8E4DC'
+                        padding: '12px 14px', borderRadius: 14, cursor: 'pointer',
+                        background: courses[key as keyof typeof courses] ? bg : '#F8F8F8',
+                        border: courses[key as keyof typeof courses] ? `1.5px solid ${color}` : '1.5px solid #E8E8E8'
                       }}>
                       <div>
-                        <p style={{ fontSize: 14, fontWeight: 600, color: '#1B3A1E', margin: 0 }}>{label}</p>
-                        <p style={{ fontSize: 11, color: '#888', margin: '2px 0 0' }}>{desc}</p>
+                        <p style={{ fontSize: 14, fontWeight: 700, color: courses[key as keyof typeof courses] ? color : '#555', margin: 0 }}>{label}</p>
+                        <p style={{ fontSize: 11, color: '#AAA', margin: '2px 0 0' }}>{desc}</p>
                       </div>
                       <div style={{
                         width: 24, height: 24, borderRadius: '50%',
-                        background: courses[key as keyof typeof courses] ? '#43A047' : 'white',
+                        background: courses[key as keyof typeof courses] ? color : 'white',
                         border: courses[key as keyof typeof courses] ? 'none' : '1.5px solid #DDD',
                         display: 'flex', alignItems: 'center', justifyContent: 'center'
                       }}>
-                        {courses[key as keyof typeof courses] && (
-                          <span style={{ color: 'white', fontSize: 12, fontWeight: 700 }}>✓</span>
-                        )}
+                        {courses[key as keyof typeof courses] && <span style={{ color: 'white', fontSize: 12, fontWeight: 700 }}>✓</span>}
                       </div>
                     </div>
                   ))}
@@ -455,9 +507,10 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
 
                 <button onClick={generateMenu} disabled={generating || !Object.values(courses).some(Boolean)} style={{
                   width: '100%', padding: '14px',
-                  background: generating ? '#888' : '#E8874A',
+                  background: generating ? '#AAA' : '#E65100',
                   color: 'white', border: 'none', borderRadius: 100,
-                  fontSize: 15, fontWeight: 600, cursor: 'pointer'
+                  fontSize: 15, fontWeight: 700, cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(230,81,0,0.4)'
                 }}>
                   {generating ? '✨ Génération en cours...' : '✨ Générer les propositions'}
                 </button>
@@ -467,25 +520,23 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
             {suggestions && !meal.ai_menu && (
               <div>
                 <div style={{
-                  background: '#E8F0E8', borderRadius: 14, padding: '12px 16px',
-                  marginBottom: 16, display: 'flex', gap: 10, alignItems: 'flex-start'
+                  background: 'linear-gradient(135deg, #FFF3E0, #FFE0B2)',
+                  borderRadius: 16, padding: '12px 16px', marginBottom: 16,
+                  display: 'flex', gap: 10, alignItems: 'center',
+                  border: '1px solid #FFE0B2'
                 }}>
                   <span style={{ fontSize: 20 }}>👇</span>
                   <div>
-                    <p style={{ fontSize: 13, fontWeight: 600, color: '#1B3A1E', margin: 0 }}>
-                      Choisissez vos plats préférés
-                    </p>
-                    <p style={{ fontSize: 12, color: '#5A8A5C', margin: '2px 0 0' }}>
-                      3 propositions par cours — sélectionnez 1 par cours.
-                    </p>
+                    <p style={{ fontSize: 13, fontWeight: 700, color: '#E65100', margin: 0 }}>Choisissez vos plats préférés</p>
+                    <p style={{ fontSize: 12, color: '#F57C00', margin: '2px 0 0' }}>3 propositions par cours — sélectionnez 1 par cours.</p>
                   </div>
                 </div>
                 <MenuBuilder suggestions={suggestions} onValidate={handleValidateMenu} />
-                <button onClick={() => { setSuggestions(null) }} style={{
+                <button onClick={() => setSuggestions(null)} style={{
                   width: '100%', padding: '12px', marginTop: 8,
-                  background: '#F7F5F0', color: '#888',
-                  border: '0.5px solid #E8E4DC', borderRadius: 100,
-                  fontSize: 13, fontWeight: 500, cursor: 'pointer'
+                  background: '#F8F8F8', color: '#888',
+                  border: '1.5px solid #E8E8E8', borderRadius: 100,
+                  fontSize: 13, fontWeight: 600, cursor: 'pointer'
                 }}>
                   ↩ Recommencer
                 </button>
@@ -495,51 +546,52 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
             {meal.ai_menu && (
               <div>
                 <div style={{
-                  background: '#E8F0E8', borderRadius: 14, padding: '12px 16px',
-                  marginBottom: 16, display: 'flex', gap: 10, alignItems: 'center'
+                  background: 'linear-gradient(135deg, #E8F5E9, #C8E6C9)',
+                  borderRadius: 16, padding: '12px 16px', marginBottom: 16,
+                  display: 'flex', gap: 10, alignItems: 'center',
+                  border: '1px solid #A5D6A7'
                 }}>
                   <span style={{ fontSize: 20 }}>✅</span>
-                  <p style={{ fontSize: 13, fontWeight: 600, color: '#1B3A1E', margin: 0 }}>
+                  <p style={{ fontSize: 13, fontWeight: 700, color: '#2E7D32', margin: 0 }}>
                     Menu validé — {meal.ai_menu.length} cours
                   </p>
                 </div>
 
                 {meal.ai_menu.map((item, i) => (
                   <div key={i} style={{
-                    background: 'white', borderRadius: 16, overflow: 'hidden',
-                    border: '0.5px solid #E8E4DC', marginBottom: 10
+                    background: 'white', borderRadius: 20, overflow: 'hidden',
+                    boxShadow: '0 2px 12px rgba(0,0,0,0.06)', marginBottom: 10
                   }}>
                     <div style={{
-                      height: 60, background: '#E8F0E8',
-                      display: 'flex', alignItems: 'center',
-                      justifyContent: 'center', fontSize: 28
+                      height: 60, background: item.course === 'entrée' ? '#E8F5E9' : item.course === 'plat' ? '#E3F2FD' : item.course === 'apéro' ? '#F3E5F5' : '#FFF3E0',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28
                     }}>
                       {item.course === 'entrée' ? '🥗' : item.course === 'plat' ? '🍽️' : item.course === 'apéro' ? '🥂' : '🍮'}
                     </div>
                     <div style={{ padding: '12px 16px' }}>
-                      <p style={{ fontSize: 11, color: '#AAA', textTransform: 'uppercase', letterSpacing: 1, margin: '0 0 4px' }}>{item.course}</p>
-                      <p style={{ fontSize: 15, fontWeight: 600, color: '#1B3A1E', margin: '0 0 4px' }}>{item.name}</p>
+                      <span style={{ fontSize: 10, fontWeight: 800, color: '#AAA', textTransform: 'uppercase', letterSpacing: 1 }}>{item.course}</span>
+                      <p style={{ fontSize: 15, fontWeight: 700, color: '#1B5E20', margin: '3px 0 4px' }}>{item.name}</p>
                       <p style={{ fontSize: 13, color: '#888', margin: 0 }}>{item.description}</p>
                     </div>
                   </div>
                 ))}
 
                 {meal.shopping_list && (
-                  <div style={{ background: 'white', borderRadius: 16, padding: 16, border: '0.5px solid #E8E4DC', marginTop: 4 }}>
-                    <p style={{ fontSize: 11, fontWeight: 600, color: '#AAA', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>
+                  <div style={{ background: 'white', borderRadius: 20, padding: 16, boxShadow: '0 2px 12px rgba(0,0,0,0.06)', marginTop: 4 }}>
+                    <p style={{ fontSize: 11, fontWeight: 800, color: '#999', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>
                       🛒 Liste de courses ({guests.length} personnes)
                     </p>
                     {meal.shopping_list.map((item, i) => (
                       <div key={i} style={{
-                        display: 'flex', justifyContent: 'space-between',
-                        padding: '8px 0',
-                        borderBottom: i < meal.shopping_list!.length - 1 ? '0.5px solid #F5F5F5' : 'none'
+                        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                        padding: '9px 0',
+                        borderBottom: i < meal.shopping_list!.length - 1 ? '1px solid #F5F5F5' : 'none'
                       }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <div style={{ width: 18, height: 18, borderRadius: '50%', border: '1.5px solid #43A047' }} />
-                          <span style={{ fontSize: 14, color: '#1a1a1a' }}>{item.ingredient}</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                          <div style={{ width: 18, height: 18, borderRadius: '50%', border: '2px solid #43A047' }} />
+                          <span style={{ fontSize: 14, color: '#1a1a1a', fontWeight: 500 }}>{item.ingredient}</span>
                         </div>
-                        <span style={{ fontSize: 13, color: '#AAA' }}>{item.quantity}</span>
+                        <span style={{ fontSize: 12, color: '#AAA', fontWeight: 600 }}>{item.quantity}</span>
                       </div>
                     ))}
                   </div>
@@ -550,9 +602,9 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
                   setSuggestions(null)
                 }} style={{
                   width: '100%', padding: '12px', marginTop: 12,
-                  background: '#F7F5F0', color: '#888',
-                  border: '0.5px solid #E8E4DC', borderRadius: 100,
-                  fontSize: 13, fontWeight: 500, cursor: 'pointer', marginBottom: 20
+                  background: '#F8F8F8', color: '#888',
+                  border: '1.5px solid #E8E8E8', borderRadius: 100,
+                  fontSize: 13, fontWeight: 600, cursor: 'pointer', marginBottom: 20
                 }}>
                   ↩ Recomposer le menu
                 </button>

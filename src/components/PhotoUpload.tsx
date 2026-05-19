@@ -14,39 +14,49 @@ type Props = {
 
 export default function PhotoUpload({ bucket, currentUrl, onUpload, shape = 'round', size = 80, placeholder = '📷' }: Props) {
   const [uploading, setUploading] = useState(false)
-  const [progress, setProgress] = useState('')
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
     setUploading(true)
-    setProgress('Compression...')
 
-    const compressed = await compressImage(
-      file,
-      bucket === 'avatars' ? 400 : 800,
-      0.75
-    )
+    try {
+      const compressed = await compressImage(
+        file,
+        bucket === 'avatars' ? 400 : 800,
+        0.75
+      )
 
-    const sizeBefore = Math.round(file.size / 1024)
-    const sizeAfter = Math.round(compressed.size / 1024)
-    console.log(`Photo compressée : ${sizeBefore}kb → ${sizeAfter}kb`)
+      const { data: { session } } = await supabase.auth.getSession()
+      console.log('Session:', session?.user?.id)
 
-    setProgress('Envoi...')
+      const fileName = `${session?.user?.id || Date.now()}_${Date.now()}.jpg`
 
-    const fileName = `${Date.now()}.jpg`
-    const { error } = await supabase.storage
-      .from(bucket)
-      .upload(fileName, compressed, { upsert: true })
+      const { data, error } = await supabase.storage
+        .from(bucket)
+        .upload(fileName, compressed, {
+          upsert: true,
+          contentType: 'image/jpeg'
+        })
 
-    if (!error) {
-      const { data } = supabase.storage.from(bucket).getPublicUrl(fileName)
-      onUpload(data.publicUrl)
+      console.log('Upload result:', data, error)
+
+      if (error) {
+        console.error('Upload error:', error)
+        alert(`Erreur upload: ${error.message}`)
+      } else {
+        const { data: urlData } = supabase.storage
+          .from(bucket)
+          .getPublicUrl(fileName)
+        console.log('Public URL:', urlData.publicUrl)
+        onUpload(urlData.publicUrl)
+      }
+    } catch (err) {
+      console.error('Erreur:', err)
     }
 
     setUploading(false)
-    setProgress('')
   }
 
   const borderRadius = shape === 'round' ? '50%' : 16
@@ -79,7 +89,7 @@ export default function PhotoUpload({ bucket, currentUrl, onUpload, shape = 'rou
           display: 'flex', alignItems: 'center', justifyContent: 'center'
         }}>
           <span style={{ fontSize: 10, color: 'white', fontWeight: 600 }}>
-            {uploading ? progress : '📷'}
+            {uploading ? '⏳' : '📷'}
           </span>
         </div>
       </div>

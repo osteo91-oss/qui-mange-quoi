@@ -6,10 +6,15 @@ import { supabase } from '@/lib/supabase'
 import Navbar from '@/components/Navbar'
 import type { Meal } from '@/lib/types'
 
+type MealWithGuests = Meal & {
+  guestCount: number
+  guestAvatars: { name: string, avatar_url: string | null }[]
+}
+
 export default function HomePage() {
   const router = useRouter()
-  const [mealsOrganized, setMealsOrganized] = useState<Meal[]>([])
-  const [mealsInvited, setMealsInvited] = useState<Meal[]>([])
+  const [mealsOrganized, setMealsOrganized] = useState<MealWithGuests[]>([])
+  const [mealsInvited, setMealsInvited] = useState<MealWithGuests[]>([])
   const [userName, setUserName] = useState('')
   const [userAvatar, setUserAvatar] = useState('')
   const [loading, setLoading] = useState(true)
@@ -29,16 +34,37 @@ export default function HomePage() {
         .from('meals').select('*')
         .eq('organizer_id', user.id)
         .order('created_at', { ascending: false })
-      if (organized) setMealsOrganized(organized)
+
+      if (organized) {
+        const mealsWithGuests = await Promise.all(organized.map(async meal => {
+          const { data: guests } = await supabase
+            .from('meal_guests')
+            .select('profiles(name, avatar_url)')
+            .eq('meal_id', meal.id)
+          const guestProfiles = (guests || []).map((g: any) => g.profiles).filter(Boolean)
+          return { ...meal, guestCount: guestProfiles.length, guestAvatars: guestProfiles }
+        }))
+        setMealsOrganized(mealsWithGuests)
+      }
 
       const { data: guestData } = await supabase
         .from('meal_guests')
         .select('meal_id, meals(*)')
         .eq('profile_id', user.id)
       if (guestData) {
-        const invitedMeals = guestData
-          .map((g: any) => g.meals)
-          .filter((m: any) => m && m.organizer_id !== user.id)
+        const invitedMeals = await Promise.all(
+          guestData
+            .map((g: any) => g.meals)
+            .filter((m: any) => m && m.organizer_id !== user.id)
+            .map(async (meal: any) => {
+              const { data: guests } = await supabase
+                .from('meal_guests')
+                .select('profiles(name, avatar_url)')
+                .eq('meal_id', meal.id)
+              const guestProfiles = (guests || []).map((g: any) => g.profiles).filter(Boolean)
+              return { ...meal, guestCount: guestProfiles.length, guestAvatars: guestProfiles }
+            })
+        )
         setMealsInvited(invitedMeals)
       }
 
@@ -68,8 +94,8 @@ export default function HomePage() {
     return 'Bonsoir'
   }
 
-  const MealCard = ({ meal, showDelete }: { meal: Meal, showDelete?: boolean }) => (
-    <div key={meal.id}>
+  const MealCard = ({ meal, showDelete }: { meal: MealWithGuests, showDelete?: boolean }) => (
+    <div>
       {confirmId === meal.id ? (
         <div style={{
           background: '#FEF0F0', borderRadius: 20, padding: '16px',
@@ -100,26 +126,24 @@ export default function HomePage() {
         <div style={{
           background: 'white', borderRadius: 20, overflow: 'hidden',
           boxShadow: '0 2px 12px rgba(0,0,0,0.07)',
-          display: 'flex', alignItems: 'stretch', marginBottom: 10
+          marginBottom: 10
         }}>
-          <Link href={`/repas/${meal.id}`} style={{ textDecoration: 'none', flex: 1, display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px' }}>
+          <Link href={`/repas/${meal.id}`} style={{ textDecoration: 'none', display: 'flex', alignItems: 'stretch' }}>
             <div style={{
-              width: 58, height: 58, borderRadius: 16,
-              overflow: 'hidden', flexShrink: 0,
-              background: '#E8F5E9',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+              width: 72, height: 72, flexShrink: 0,
+              overflow: 'hidden', background: '#E8F5E9',
+              display: 'flex', alignItems: 'center', justifyContent: 'center'
             }}>
               {meal.photo_url
                 ? <img src={meal.photo_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={meal.name} />
-                : <span style={{ fontSize: 28 }}>🍽️</span>
+                : <span style={{ fontSize: 30 }}>🍽️</span>
               }
             </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ flex: 1, padding: '12px 14px', minWidth: 0 }}>
               <p style={{ fontWeight: 700, color: '#1B5E20', margin: '0 0 4px', fontSize: 15, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {meal.name}
               </p>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 8 }}>
                 {meal.date && (
                   <span style={{ fontSize: 11, background: '#E3F2FD', color: '#1976D2', padding: '2px 8px', borderRadius: 100, fontWeight: 600 }}>
                     📅 {new Date(meal.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
@@ -127,14 +151,38 @@ export default function HomePage() {
                 )}
                 {!(meal as any).date && (meal as any).date_mode === 'doodle' && (
                   <span style={{ fontSize: 11, background: '#FFF3E0', color: '#F57C00', padding: '2px 8px', borderRadius: 100, fontWeight: 600 }}>
-                    🗳️ Sondage en cours
+                    🗳️ Sondage
                   </span>
                 )}
                 {meal.ai_menu && (
                   <span style={{ fontSize: 11, background: '#E8F5E9', color: '#43A047', padding: '2px 8px', borderRadius: 100, fontWeight: 600 }}>
-                    ✓ Menu prêt
+                    ✓ Menu
                   </span>
                 )}
+              </div>
+
+              {/* Avatars invités */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div style={{ display: 'flex' }}>
+                  {meal.guestAvatars.slice(0, 4).map((g, i) => (
+                    <div key={i} style={{
+                      width: 22, height: 22, borderRadius: '50%',
+                      background: '#E8F5E9', border: '2px solid white',
+                      marginLeft: i > 0 ? -6 : 0,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: 9, fontWeight: 800, color: '#43A047',
+                      overflow: 'hidden', zIndex: 4 - i
+                    }}>
+                      {g.avatar_url
+                        ? <img src={g.avatar_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={g.name} />
+                        : g.name.charAt(0).toUpperCase()
+                      }
+                    </div>
+                  ))}
+                </div>
+                <span style={{ fontSize: 11, color: '#AAA', fontWeight: 500 }}>
+                  {meal.guestCount} invité{meal.guestCount > 1 ? 's' : ''}
+                </span>
               </div>
             </div>
           </Link>
@@ -182,36 +230,47 @@ export default function HomePage() {
 
       <div style={{ padding: '16px 16px 100px' }}>
 
+        {/* Hero */}
         <div style={{
           borderRadius: 24, overflow: 'hidden', marginBottom: 20,
           boxShadow: '0 8px 32px rgba(46,125,50,0.25)',
-          background: 'linear-gradient(135deg, #1B5E20 0%, #2E7D32 50%, #43A047 100%)',
-          padding: '22px 22px 26px', position: 'relative'
+          position: 'relative', minHeight: 180
         }}>
-          <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13, margin: '0 0 4px' }}>
-            {getGreeting()}, {userName} 👋
-          </p>
-          <p style={{ color: 'white', fontSize: 22, fontWeight: 800, margin: '0 0 4px', lineHeight: 1.25, letterSpacing: -0.5 }}>
-            Prêt pour votre<br />prochain repas ?
-          </p>
-          <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12, margin: '0 0 18px' }}>
-            {mealsOrganized.length + mealsInvited.length === 0
-              ? 'Créez votre premier repas'
-              : `${mealsOrganized.length} organisé${mealsOrganized.length > 1 ? 's' : ''} · ${mealsInvited.length} invitation${mealsInvited.length > 1 ? 's' : ''}`}
-          </p>
-          <Link href="/nouveau">
-            <button style={{
-              background: '#F57C00', color: 'white', border: 'none',
-              borderRadius: 100, padding: '11px 22px',
-              fontSize: 14, fontWeight: 700, cursor: 'pointer',
-              boxShadow: '0 4px 12px rgba(245,124,0,0.5)'
-            }}>
-              + Nouveau repas
-            </button>
-          </Link>
-          <div style={{ position: 'absolute', right: 16, top: 16, fontSize: 64, opacity: 0.15 }}>🍽️</div>
+          {mealsOrganized[0]?.photo_url ? (
+            <>
+              <img src={mealsOrganized[0].photo_url} alt="repas"
+                style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(27,94,32,0.92) 0%, rgba(67,160,71,0.85) 100%)' }} />
+            </>
+          ) : (
+            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, #1B5E20 0%, #2E7D32 50%, #43A047 100%)' }} />
+          )}
+          <div style={{ position: 'relative', zIndex: 1, padding: '22px 22px 26px' }}>
+            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13, margin: '0 0 4px' }}>
+              {getGreeting()}, {userName} 👋
+            </p>
+            <p style={{ color: 'white', fontSize: 22, fontWeight: 800, margin: '0 0 4px', lineHeight: 1.25, letterSpacing: -0.5 }}>
+              Prêt pour votre<br />prochain repas ?
+            </p>
+            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12, margin: '0 0 18px' }}>
+              {mealsOrganized.length + mealsInvited.length === 0
+                ? 'Créez votre premier repas'
+                : `${mealsOrganized.length} organisé${mealsOrganized.length > 1 ? 's' : ''} · ${mealsInvited.length} invitation${mealsInvited.length > 1 ? 's' : ''}`}
+            </p>
+            <Link href="/nouveau">
+              <button style={{
+                background: '#F57C00', color: 'white', border: 'none',
+                borderRadius: 100, padding: '11px 22px',
+                fontSize: 14, fontWeight: 700, cursor: 'pointer',
+                boxShadow: '0 4px 12px rgba(245,124,0,0.5)'
+              }}>
+                + Nouveau repas
+              </button>
+            </Link>
+          </div>
         </div>
 
+        {/* Stats */}
         {(mealsOrganized.length > 0 || mealsInvited.length > 0) && (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 20 }}>
             {[
@@ -231,6 +290,7 @@ export default function HomePage() {
           </div>
         )}
 
+        {/* Repas organisés */}
         {mealsOrganized.length > 0 && (
           <div style={{ marginBottom: 20 }}>
             <p style={{ fontSize: 12, fontWeight: 800, color: '#999', letterSpacing: 1, textTransform: 'uppercase', margin: '0 0 12px' }}>
@@ -240,6 +300,7 @@ export default function HomePage() {
           </div>
         )}
 
+        {/* Invitations */}
         {mealsInvited.length > 0 && (
           <div style={{ marginBottom: 20 }}>
             <p style={{ fontSize: 12, fontWeight: 800, color: '#999', letterSpacing: 1, textTransform: 'uppercase', margin: '0 0 12px' }}>
@@ -249,6 +310,7 @@ export default function HomePage() {
           </div>
         )}
 
+        {/* Vide */}
         {mealsOrganized.length === 0 && mealsInvited.length === 0 && (
           <div style={{
             background: 'white', borderRadius: 24, padding: '40px 24px',

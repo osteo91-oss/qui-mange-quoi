@@ -173,6 +173,51 @@ function ProfilContent() {
             Appuyez sur la photo pour la modifier
           </p>
 
+          {/* Complétion profil */}
+          {(() => {
+            const steps = [
+              { label: 'Prénom', done: !!profile.name },
+              { label: 'Photo', done: !!profile.avatar_url },
+              { label: 'Régimes', done: (profile.diets || []).length > 0 },
+              { label: 'Cuisines', done: (profile.cuisines || []).length > 0 },
+              { label: 'Allergies', done: (profile.allergies || []).length > 0 },
+            ]
+            const completed = steps.filter(s => s.done).length
+            const percent = Math.round((completed / steps.length) * 100)
+            const color = percent === 100 ? '#43A047' : percent >= 60 ? '#F57C00' : '#E53935'
+            return (
+              <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #F5F5F5' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                  <p style={{ fontSize: 12, fontWeight: 700, color: '#999', margin: 0 }}>
+                    Profil complété
+                  </p>
+                  <span style={{ fontSize: 14, fontWeight: 800, color }}>
+                    {percent}%
+                  </span>
+                </div>
+                <div style={{ height: 6, background: '#F0F0F0', borderRadius: 3, marginBottom: 10 }}>
+                  <div style={{
+                    height: '100%', width: `${percent}%`,
+                    background: color, borderRadius: 3,
+                    transition: 'width 0.3s ease'
+                  }} />
+                </div>
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                  {steps.map(step => (
+                    <span key={step.label} style={{
+                      fontSize: 10, fontWeight: 700,
+                      padding: '3px 8px', borderRadius: 100,
+                      background: step.done ? '#E8F5E9' : '#F5F5F5',
+                      color: step.done ? '#43A047' : '#BBB'
+                    }}>
+                      {step.done ? '✓' : '○'} {step.label}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )
+          })()}
+
           <div style={{ display: 'flex', justifyContent: 'center', gap: 20, marginTop: 16, paddingTop: 16, borderTop: '1px solid #F5F5F5' }}>
             <div style={{ textAlign: 'center' }}>
               <p style={{ fontSize: 18, fontWeight: 800, color: '#43A047', margin: 0 }}>{(profile.diets || []).length}</p>

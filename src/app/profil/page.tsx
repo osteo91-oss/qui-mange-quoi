@@ -102,7 +102,7 @@ export default function ProfilPage() {
         }}>
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 12 }}>
             <PhotoUpload
-              bucket="avatars"
+              bucket="Avatars"
               currentUrl={profile.avatar_url}
               onUpload={url => setProfile({ ...profile, avatar_url: url })}
               shape="round"

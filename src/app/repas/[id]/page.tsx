@@ -19,6 +19,7 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
   const [activeTab, setActiveTab] = useState<'invites' | 'dates' | 'synthese' | 'menus'>('dates')
   const [suggestions, setSuggestions] = useState<any>(null)
   const [courses, setCourses] = useState({ apero: false, entree: true, plat: true, dessert: true })
+  const [dietLevel, setDietLevel] = useState<1 | 2 | 3 | 4>(2)
 
   useEffect(() => {
     const load = async () => {
@@ -62,7 +63,7 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
     const res = await fetch('/api/generer-menu', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ guests, mealName: meal.name, courses }),
+      body: JSON.stringify({ guests, mealName: meal.name, courses, dietLevel }),
     })
     const data = await res.json()
     if (data.suggestions) {
@@ -106,7 +107,7 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
     invites: '👥 Invités',
     dates: dateMode === 'doodle' ? '🗳️ Dates' : '📅 Date',
     synthese: '📊 Synthèse',
-    menus: '✨ Menus',
+    menus: '✨ Menu',
   }
   const tabColors: Record<string, string> = {
     invites: '#43A047',
@@ -118,16 +119,13 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
   return (
     <div style={{ maxWidth: 480, margin: '0 auto', background: '#F0F7F0', minHeight: '100vh' }}>
 
-      {/* Header avec photo */}
+      {/* Header */}
       <div style={{ position: 'relative' }}>
         {meal.photo_url ? (
           <div style={{ position: 'relative', height: 200 }}>
             <img src={meal.photo_url} alt={meal.name}
               style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            <div style={{
-              position: 'absolute', inset: 0,
-              background: 'linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.6) 100%)',
-            }} />
+            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.6) 100%)' }} />
             <div style={{ position: 'absolute', top: 16, left: 16, right: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
               <button onClick={() => router.push('/')} style={{
                 background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(8px)',
@@ -172,10 +170,7 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
             </div>
           </div>
         ) : (
-          <div style={{
-            background: 'linear-gradient(135deg, #1B5E20, #43A047)',
-            padding: '20px 16px 16px'
-          }}>
+          <div style={{ background: 'linear-gradient(135deg, #1B5E20, #43A047)', padding: '20px 16px 16px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <button onClick={() => router.push('/')} style={{
                 background: 'rgba(255,255,255,0.2)', border: 'none',
@@ -218,6 +213,7 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
             </div>
           </div>
         )}
+
         {/* Tabs */}
         <div style={{
           background: 'white', padding: '12px 16px',
@@ -270,17 +266,15 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
                 </button>
               </div>
               <button onClick={shareWhatsApp} style={{
-                width: '100%', padding: '11px',
+                width: '100%', padding: '11px', marginBottom: 8,
                 background: '#25D366', color: 'white',
                 border: 'none', borderRadius: 12,
                 fontSize: 13, fontWeight: 700, cursor: 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                boxShadow: '0 2px 8px rgba(37,211,102,0.3)',
-                marginBottom: 8
+                boxShadow: '0 2px 8px rgba(37,211,102,0.3)'
               }}>
                 <span>📱</span> Envoyer via WhatsApp
               </button>
-
               <div style={{ display: 'flex', gap: 8 }}>
                 <input
                   type="email"
@@ -516,14 +510,43 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
           </div>
         )}
 
-        {/* Tab Menus */}
+        {/* Tab Menu */}
         {activeTab === 'menus' && isOrganizer && (
           <div>
             {!suggestions && !meal.ai_menu && (
               <div style={{ background: 'white', borderRadius: 20, padding: 20, boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
-                <p style={{ fontSize: 15, fontWeight: 800, color: '#1B5E20', marginBottom: 6 }}>Composer le menu</p>
-                <p style={{ fontSize: 12, color: '#AAA', marginBottom: 20 }}>Choisissez les cours que vous souhaitez servir.</p>
+                <p style={{ fontSize: 15, fontWeight: 800, color: '#1B5E20', marginBottom: 4 }}>Composer le menu</p>
+                <p style={{ fontSize: 12, color: '#AAA', marginBottom: 20 }}>Choisissez ce qui sera au menu et le niveau de gourmandise.</p>
 
+                {/* Niveau gourmandise */}
+                <p style={{ fontSize: 11, fontWeight: 800, color: '#999', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>
+                  Niveau de gourmandise
+                </p>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 8, marginBottom: 20 }}>
+                  {[
+                    { level: 1, emoji: '🥗', label: 'Healthy', color: '#43A047', bg: '#E8F5E9' },
+                    { level: 2, emoji: '😊', label: 'Équilibré', color: '#1976D2', bg: '#E3F2FD' },
+                    { level: 3, emoji: '😋', label: 'Gourmand', color: '#F57C00', bg: '#FFF3E0' },
+                    { level: 4, emoji: '🤤', label: 'Festif !', color: '#E53935', bg: '#FFEBEE' },
+                  ].map(({ level, emoji, label, color, bg }) => (
+                    <div key={level}
+                      onClick={() => setDietLevel(level as 1 | 2 | 3 | 4)}
+                      style={{
+                        borderRadius: 14, padding: '10px 6px',
+                        textAlign: 'center', cursor: 'pointer',
+                        background: dietLevel === level ? bg : '#F8F8F8',
+                        border: dietLevel === level ? `2px solid ${color}` : '1.5px solid #E8E8E8',
+                      }}>
+                      <div style={{ fontSize: 22, marginBottom: 4 }}>{emoji}</div>
+                      <p style={{ fontSize: 10, fontWeight: 700, margin: 0, color: dietLevel === level ? color : '#AAA' }}>{label}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Au menu */}
+                <p style={{ fontSize: 11, fontWeight: 800, color: '#999', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>
+                  Au menu
+                </p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
                   {[
                     { key: 'apero', label: '🥂 Apéritif', desc: 'Amuse-bouches et boissons', color: '#7B1FA2', bg: '#F3E5F5' },
@@ -577,7 +600,7 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
                   <span style={{ fontSize: 20 }}>👇</span>
                   <div>
                     <p style={{ fontSize: 13, fontWeight: 700, color: '#E65100', margin: 0 }}>Choisissez vos plats préférés</p>
-                    <p style={{ fontSize: 12, color: '#F57C00', margin: '2px 0 0' }}>3 propositions par cours — sélectionnez 1 par cours.</p>
+                    <p style={{ fontSize: 12, color: '#F57C00', margin: '2px 0 0' }}>3 propositions par service — sélectionnez 1 par service.</p>
                   </div>
                 </div>
                 <MenuBuilder suggestions={suggestions} onValidate={handleValidateMenu} />
@@ -602,7 +625,7 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
                 }}>
                   <span style={{ fontSize: 20 }}>✅</span>
                   <p style={{ fontSize: 13, fontWeight: 700, color: '#2E7D32', margin: 0 }}>
-                    Menu validé — {meal.ai_menu.length} cours
+                    Menu validé — {meal.ai_menu.length} services
                   </p>
                 </div>
 
@@ -612,7 +635,8 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
                     boxShadow: '0 2px 12px rgba(0,0,0,0.06)', marginBottom: 10
                   }}>
                     <div style={{
-                      height: 60, background: item.course === 'entrée' ? '#E8F5E9' : item.course === 'plat' ? '#E3F2FD' : item.course === 'apéro' ? '#F3E5F5' : '#FFF3E0',
+                      height: 60,
+                      background: item.course === 'entrée' ? '#E8F5E9' : item.course === 'plat' ? '#E3F2FD' : item.course === 'apéro' ? '#F3E5F5' : '#FFF3E0',
                       display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28
                     }}>
                       {item.course === 'entrée' ? '🥗' : item.course === 'plat' ? '🍽️' : item.course === 'apéro' ? '🥂' : '🍮'}

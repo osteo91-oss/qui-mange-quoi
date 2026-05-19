@@ -4,12 +4,32 @@ import type { Profile } from '@/lib/types'
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
+const DIET_LEVELS = {
+  1: {
+    label: 'Healthy',
+    instructions: 'Privilégie des plats légers, peu caloriques, riches en légumes, fibres et protéines maigres. Évite les sauces grasses, le beurre en excès, les fritures et les desserts sucrés. Favorise la cuisson vapeur, grillée ou au four.'
+  },
+  2: {
+    label: 'Équilibré',
+    instructions: 'Propose des plats équilibrés et savoureux, avec un bon ratio protéines/glucides/lipides. Quelques touches gourmandes sont acceptées mais garde un profil nutritionnel raisonnable.'
+  },
+  3: {
+    label: 'Gourmand',
+    instructions: 'On se fait plaisir ! Propose des plats généreux et savoureux, avec des sauces, du fromage, des préparations riches. Les calories ne sont pas une priorité, le plaisir gustatif oui.'
+  },
+  4: {
+    label: 'Festif',
+    instructions: 'C\'est la fête, on lâche tout ! Propose des plats vraiment indulgents, riches, festifs. Foie gras, tartiflette, fondant au chocolat, raclette, plats en sauce... Aucune restriction calorique, l\'objectif est le maximum de plaisir et de convivialité !'
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
-    const { guests, mealName, courses }: {
+    const { guests, mealName, courses, dietLevel = 2 }: {
       guests: Profile[],
       mealName: string,
-      courses: { apero: boolean, entree: boolean, plat: boolean, dessert: boolean }
+      courses: { apero: boolean, entree: boolean, plat: boolean, dessert: boolean },
+      dietLevel: 1 | 2 | 3 | 4
     } = await req.json()
 
     const guestSummaries = guests.map(g =>
@@ -28,12 +48,17 @@ export async function POST(req: NextRequest) {
     if (courses.plat) coursesSelected.push('plat')
     if (courses.dessert) coursesSelected.push('dessert')
 
+    const dietInfo = DIET_LEVELS[dietLevel]
+
     const prompt = `Tu es un chef cuisinier expert. Voici les profils alimentaires des ${nbPersonnes} invités pour le repas "${mealName}":
 
 ${guestSummaries}
 
+NIVEAU DE GOURMANDISE : ${dietInfo.label} (${dietLevel}/4)
+${dietInfo.instructions}
+
 Génère 3 propositions pour CHACUN de ces cours : ${coursesSelected.join(', ')}.
-Tous les plats doivent convenir à TOUS les invités.
+Tous les plats doivent convenir à TOUS les invités ET respecter le niveau de gourmandise demandé.
 Les quantités doivent être calculées pour ${nbPersonnes} personnes.
 
 Réponds UNIQUEMENT en JSON valide avec cette structure exacte:
@@ -72,7 +97,7 @@ Réponds UNIQUEMENT en JSON valide avec cette structure exacte:
       model: 'gpt-4o',
       messages: [{ role: 'user', content: prompt }],
       response_format: { type: 'json_object' },
-      temperature: 0.7,
+      temperature: 0.8,
     })
 
     const content = response.choices[0].message.content

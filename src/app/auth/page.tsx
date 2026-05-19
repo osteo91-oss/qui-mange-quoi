@@ -42,45 +42,75 @@ export default function AuthPage() {
   return (
     <div style={{
       minHeight: '100vh',
-      background: '#F7F5F0',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '0 20px',
+      background: 'linear-gradient(160deg, #1B3A1E 0%, #2A5230 40%, #3B6E3F 100%)',
+      display: 'flex', flexDirection: 'column',
+      alignItems: 'center', justifyContent: 'center',
+      padding: '0 24px',
+      position: 'relative', overflow: 'hidden'
     }}>
-      <div style={{ width: '100%', maxWidth: 380 }}>
 
-        <div style={{ textAlign: 'center', marginBottom: 36 }}>
+      {/* Cercles décoratifs */}
+      <div style={{
+        position: 'absolute', top: -80, right: -80,
+        width: 300, height: 300, borderRadius: '50%',
+        background: 'rgba(255,255,255,0.04)'
+      }} />
+      <div style={{
+        position: 'absolute', bottom: -60, left: -60,
+        width: 200, height: 200, borderRadius: '50%',
+        background: 'rgba(255,255,255,0.04)'
+      }} />
+      <div style={{
+        position: 'absolute', top: '30%', right: -40,
+        width: 120, height: 120, borderRadius: '50%',
+        background: 'rgba(232,135,74,0.1)'
+      }} />
+
+      <div style={{ width: '100%', maxWidth: 380, position: 'relative', zIndex: 1 }}>
+
+        {/* Logo section */}
+        <div style={{ textAlign: 'center', marginBottom: 40 }}>
           <img
-            src="/logo.png"
+            src="/logo-icon.png"
             alt="Qui mange quoi"
-            style={{ width: 280, margin: '0 auto 8px', display: 'block' }}
+            style={{ width: 80, height: 80, marginBottom: 16, filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.3))' }}
           />
+          <h1 style={{
+            fontSize: 32, fontWeight: 800, color: 'white',
+            margin: '0 0 6px', letterSpacing: -1
+          }}>
+            Qui mange <span style={{ color: '#E8874A' }}>quoi</span>
+          </h1>
+          <p style={{
+            fontSize: 15, color: 'rgba(255,255,255,0.55)',
+            margin: 0, fontStyle: 'italic', letterSpacing: 0.3
+          }}>
+            Eat together. Really together.
+          </p>
         </div>
 
+        {/* Form card */}
         <div style={{
           background: 'white',
-          borderRadius: 24,
-          padding: 28,
-          border: '0.5px solid #E8E4DC',
-          boxShadow: '0 2px 20px rgba(0,0,0,0.06)'
+          borderRadius: 28,
+          padding: '28px 24px',
+          boxShadow: '0 24px 60px rgba(0,0,0,0.3)'
         }}>
+
+          {/* Tabs */}
           <div style={{
-            display: 'flex',
-            background: '#F7F5F0',
-            borderRadius: 100,
-            padding: 4,
-            marginBottom: 24,
-            border: '0.5px solid #E8E4DC'
+            display: 'flex', background: '#F7F5F0',
+            borderRadius: 100, padding: 4, marginBottom: 24,
+            border: '0.5px solid rgba(0,0,0,0.06)'
           }}>
             {(['login', 'signup'] as const).map(m => (
-              <button key={m} onClick={() => setMode(m)} style={{
-                flex: 1, padding: '9px 0', borderRadius: 100,
-                border: 'none', fontSize: 13, fontWeight: 500,
+              <button key={m} onClick={() => { setMode(m); setError('') }} style={{
+                flex: 1, padding: '10px 0', borderRadius: 100,
+                border: 'none', fontSize: 14, fontWeight: 600,
                 cursor: 'pointer', transition: 'all 0.2s',
                 background: mode === m ? '#3B6E3F' : 'transparent',
-                color: mode === m ? 'white' : '#888'
+                color: mode === m ? 'white' : '#AAA',
+                boxShadow: mode === m ? '0 2px 8px rgba(59,110,63,0.3)' : 'none'
               }}>
                 {m === 'login' ? 'Se connecter' : 'Créer un compte'}
               </button>
@@ -91,19 +121,20 @@ export default function AuthPage() {
             {mode === 'signup' && (
               <div style={{ marginBottom: 14 }}>
                 <label style={{
-                  fontSize: 11, fontWeight: 600, color: '#888',
-                  letterSpacing: 0.8, textTransform: 'uppercase',
-                  display: 'block', marginBottom: 7
+                  fontSize: 11, fontWeight: 700, color: '#AAA',
+                  letterSpacing: 1, textTransform: 'uppercase',
+                  display: 'block', marginBottom: 8
                 }}>Prénom</label>
                 <input
                   type="text" value={name}
                   onChange={e => setName(e.target.value)}
                   required placeholder="Marie"
                   style={{
-                    width: '100%', padding: '12px 14px',
-                    borderRadius: 12, border: '0.5px solid #E0DDD6',
-                    fontSize: 14, outline: 'none', background: '#F7F5F0',
-                    color: '#1a1a1a'
+                    width: '100%', padding: '14px 16px',
+                    borderRadius: 14, border: '0.5px solid #E8E4DC',
+                    fontSize: 15, outline: 'none', background: '#F7F5F0',
+                    color: '#1a1a1a', fontFamily: 'inherit',
+                    boxSizing: 'border-box'
                   }}
                 />
               </div>
@@ -111,38 +142,40 @@ export default function AuthPage() {
 
             <div style={{ marginBottom: 14 }}>
               <label style={{
-                fontSize: 11, fontWeight: 600, color: '#888',
-                letterSpacing: 0.8, textTransform: 'uppercase',
-                display: 'block', marginBottom: 7
+                fontSize: 11, fontWeight: 700, color: '#AAA',
+                letterSpacing: 1, textTransform: 'uppercase',
+                display: 'block', marginBottom: 8
               }}>Email</label>
               <input
                 type="email" value={email}
                 onChange={e => setEmail(e.target.value)}
                 required placeholder="marie@exemple.fr"
                 style={{
-                  width: '100%', padding: '12px 14px',
-                  borderRadius: 12, border: '0.5px solid #E0DDD6',
-                  fontSize: 14, outline: 'none', background: '#F7F5F0',
-                  color: '#1a1a1a'
+                  width: '100%', padding: '14px 16px',
+                  borderRadius: 14, border: '0.5px solid #E8E4DC',
+                  fontSize: 15, outline: 'none', background: '#F7F5F0',
+                  color: '#1a1a1a', fontFamily: 'inherit',
+                  boxSizing: 'border-box'
                 }}
               />
             </div>
 
             <div style={{ marginBottom: 20 }}>
               <label style={{
-                fontSize: 11, fontWeight: 600, color: '#888',
-                letterSpacing: 0.8, textTransform: 'uppercase',
-                display: 'block', marginBottom: 7
+                fontSize: 11, fontWeight: 700, color: '#AAA',
+                letterSpacing: 1, textTransform: 'uppercase',
+                display: 'block', marginBottom: 8
               }}>Mot de passe</label>
               <input
                 type="password" value={password}
                 onChange={e => setPassword(e.target.value)}
                 required placeholder="••••••••"
                 style={{
-                  width: '100%', padding: '12px 14px',
-                  borderRadius: 12, border: '0.5px solid #E0DDD6',
-                  fontSize: 14, outline: 'none', background: '#F7F5F0',
-                  color: '#1a1a1a'
+                  width: '100%', padding: '14px 16px',
+                  borderRadius: 14, border: '0.5px solid #E8E4DC',
+                  fontSize: 15, outline: 'none', background: '#F7F5F0',
+                  color: '#1a1a1a', fontFamily: 'inherit',
+                  boxSizing: 'border-box'
                 }}
               />
             </div>
@@ -150,28 +183,34 @@ export default function AuthPage() {
             {error && (
               <div style={{
                 background: '#FEF0F0', color: '#C62828',
-                padding: '10px 14px', borderRadius: 10,
+                padding: '12px 14px', borderRadius: 12,
                 fontSize: 13, marginBottom: 16,
-                border: '0.5px solid #FFCDD2'
+                border: '0.5px solid #FFCDD2',
+                fontWeight: 500
               }}>
-                {error}
+                ⚠️ {error}
               </div>
             )}
 
             <button type="submit" disabled={loading} style={{
-              width: '100%', padding: '14px',
-              background: '#3B6E3F', color: 'white',
-              border: 'none', borderRadius: 100,
-              fontSize: 15, fontWeight: 600,
-              cursor: 'pointer', letterSpacing: 0.3
+              width: '100%', padding: '15px',
+              background: loading ? '#AAA' : 'linear-gradient(135deg, #3B6E3F, #2A5230)',
+              color: 'white', border: 'none', borderRadius: 100,
+              fontSize: 15, fontWeight: 700, cursor: 'pointer',
+              boxShadow: '0 4px 16px rgba(59,110,63,0.4)',
+              letterSpacing: 0.3
             }}>
               {loading ? 'Chargement...' : mode === 'login' ? 'Se connecter' : 'Créer mon compte'}
             </button>
           </form>
         </div>
 
-        <p style={{ textAlign: 'center', fontSize: 11, color: '#AAA', marginTop: 20 }}>
-          Vos données sont sécurisées et confidentielles 🔒
+        <p style={{
+          textAlign: 'center', fontSize: 12,
+          color: 'rgba(255,255,255,0.35)',
+          marginTop: 24
+        }}>
+          🔒 Vos données sont sécurisées et confidentielles
         </p>
       </div>
     </div>

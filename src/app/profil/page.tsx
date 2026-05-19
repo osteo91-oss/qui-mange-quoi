@@ -20,18 +20,20 @@ function TagSelector({ label, options, selected, onChange, color }: {
 
   return (
     <div style={{ marginBottom: 20 }}>
-      <p style={{ fontSize: 11, fontWeight: 600, color: '#AAA', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>
+      <p style={{ fontSize: 11, fontWeight: 700, color: '#AAA', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>
         {label}
       </p>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
         {options.map(opt => (
           <button key={opt} onClick={() => toggle(opt)} style={{
-            padding: '7px 14px', borderRadius: 100,
+            padding: '8px 16px', borderRadius: 100,
             border: selected.includes(opt) ? 'none' : '0.5px solid #E0DDD6',
             background: selected.includes(opt) ? color : 'white',
             color: selected.includes(opt) ? 'white' : '#555',
             fontSize: 13, cursor: 'pointer',
-            fontWeight: selected.includes(opt) ? 600 : 400
+            fontWeight: selected.includes(opt) ? 600 : 400,
+            boxShadow: selected.includes(opt) ? `0 2px 8px ${color}40` : '0 1px 4px rgba(0,0,0,0.06)',
+            transition: 'all 0.15s'
           }}>
             {opt}
           </button>
@@ -78,16 +80,17 @@ export default function ProfilPage() {
   return (
     <div style={{ maxWidth: 480, margin: '0 auto', background: '#F7F5F0', minHeight: '100vh' }}>
 
+      {/* Header */}
       <div style={{
-        background: 'white', padding: '20px 20px 16px',
-        borderBottom: '0.5px solid #E8E4DC',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+        background: 'white', padding: '16px 20px',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        boxShadow: '0 1px 0 rgba(0,0,0,0.06)'
       }}>
         <img src="/logo-icon.png" alt="Logo" style={{ width: 36 }} />
         <h1 style={{ fontSize: 17, fontWeight: 700, color: '#1B3A1E', margin: 0 }}>Mon profil</h1>
         <button onClick={handleLogout} style={{
           fontSize: 13, color: '#AAA', background: 'none',
-          border: 'none', cursor: 'pointer'
+          border: 'none', cursor: 'pointer', fontWeight: 500
         }}>
           Déconnexion
         </button>
@@ -95,20 +98,32 @@ export default function ProfilPage() {
 
       <div style={{ padding: '24px 16px 100px' }}>
 
+        {/* Avatar card */}
         <div style={{
-          background: 'white', borderRadius: 20,
-          padding: 20, border: '0.5px solid #E8E4DC',
+          background: 'white', borderRadius: 24,
+          padding: '28px 20px 20px',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.07)',
+          border: '0.5px solid rgba(0,0,0,0.05)',
           marginBottom: 16, textAlign: 'center'
         }}>
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 12 }}>
-            <PhotoUpload
-              bucket="avatars"
-              currentUrl={profile.avatar_url}
-              onUpload={url => setProfile({ ...profile, avatar_url: url })}
-              shape="round"
-              size={88}
-              placeholder="👤"
-            />
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 14 }}>
+            <div style={{ position: 'relative' }}>
+              <PhotoUpload
+                bucket="avatars"
+                currentUrl={profile.avatar_url}
+                onUpload={url => setProfile({ ...profile, avatar_url: url })}
+                shape="round"
+                size={90}
+                placeholder="👤"
+              />
+              <div style={{
+                position: 'absolute', bottom: 2, right: 2,
+                width: 26, height: 26, borderRadius: '50%',
+                background: '#3B6E3F', border: '2px solid white',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 12
+              }}>📷</div>
+            </div>
           </div>
           <input
             type="text" value={profile.name || ''}
@@ -116,37 +131,44 @@ export default function ProfilPage() {
             placeholder="Votre prénom"
             style={{
               textAlign: 'center', border: 'none',
-              fontSize: 18, fontWeight: 700, color: '#1B3A1E',
+              fontSize: 20, fontWeight: 700, color: '#1B3A1E',
               background: 'transparent', outline: 'none',
-              width: '100%'
+              width: '100%', marginBottom: 4
             }}
           />
-          <p style={{ fontSize: 12, color: '#AAA', margin: '4px 0 0' }}>
+          <p style={{ fontSize: 12, color: '#BBB', margin: 0 }}>
             Appuyez sur la photo pour la modifier
           </p>
         </div>
 
+        {/* Tabs */}
         <div style={{
           display: 'flex', background: 'white',
-          borderRadius: 100, padding: 4, marginBottom: 16,
-          border: '0.5px solid #E8E4DC'
+          borderRadius: 16, padding: 4, marginBottom: 16,
+          boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+          border: '0.5px solid rgba(0,0,0,0.05)'
         }}>
           {(['profil', 'gouts', 'allergies'] as const).map(tab => (
             <button key={tab} onClick={() => setActiveTab(tab)} style={{
-              flex: 1, padding: '9px 0', borderRadius: 100,
-              border: 'none', fontSize: 12, fontWeight: 500,
-              cursor: 'pointer',
+              flex: 1, padding: '10px 0', borderRadius: 12,
+              border: 'none', fontSize: 13, fontWeight: 600,
+              cursor: 'pointer', transition: 'all 0.15s',
               background: activeTab === tab ? '#3B6E3F' : 'transparent',
-              color: activeTab === tab ? 'white' : '#888'
+              color: activeTab === tab ? 'white' : '#AAA',
+              boxShadow: activeTab === tab ? '0 2px 8px rgba(59,110,63,0.3)' : 'none'
             }}>
-              {tab === 'profil' ? 'Profil' : tab === 'gouts' ? 'Goûts' : 'Allergies'}
+              {tab === 'profil' ? '🥗 Régimes' : tab === 'gouts' ? '❤️ Goûts' : '⚠️ Allergies'}
             </button>
           ))}
         </div>
 
+        {/* Content */}
         <div style={{
           background: 'white', borderRadius: 20,
-          padding: 20, border: '0.5px solid #E8E4DC', marginBottom: 16
+          padding: 20,
+          boxShadow: '0 2px 16px rgba(0,0,0,0.06)',
+          border: '0.5px solid rgba(0,0,0,0.05)',
+          marginBottom: 16
         }}>
           {activeTab === 'profil' && (
             <TagSelector
@@ -165,9 +187,9 @@ export default function ProfilPage() {
                 options={CUISINES}
                 selected={profile.cuisines || []}
                 onChange={v => setProfile({ ...profile, cuisines: v })}
-                color="#3B6E3F"
+                color="#E8874A"
               />
-              <p style={{ fontSize: 11, fontWeight: 600, color: '#AAA', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: '#AAA', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>
                 Aliments non aimés
               </p>
               <textarea
@@ -179,7 +201,7 @@ export default function ProfilPage() {
                   width: '100%', padding: '12px 14px', borderRadius: 12,
                   border: '0.5px solid #E0DDD6', fontSize: 14,
                   outline: 'none', background: '#F7F5F0', resize: 'none',
-                  color: '#1a1a1a'
+                  color: '#1a1a1a', fontFamily: 'inherit'
                 }}
               />
             </div>
@@ -197,10 +219,12 @@ export default function ProfilPage() {
         </div>
 
         <button onClick={handleSave} disabled={loading} style={{
-          width: '100%', padding: '14px',
+          width: '100%', padding: '15px',
           background: saved ? '#388E3C' : '#3B6E3F',
           color: 'white', border: 'none', borderRadius: 100,
-          fontSize: 15, fontWeight: 600, cursor: 'pointer'
+          fontSize: 15, fontWeight: 700, cursor: 'pointer',
+          boxShadow: saved ? '0 4px 12px rgba(56,142,60,0.4)' : '0 4px 12px rgba(59,110,63,0.3)',
+          transition: 'all 0.2s'
         }}>
           {saved ? '✓ Profil enregistré !' : loading ? 'Enregistrement...' : 'Enregistrer mon profil'}
         </button>

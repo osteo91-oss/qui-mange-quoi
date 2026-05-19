@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase'
 import { compressImage } from '@/lib/compress'
 
 type Props = {
-  bucket: 'Avatars' | 'meals'
+  bucket: 'avatars' | 'meals'
   currentUrl?: string | null
   onUpload: (url: string) => void
   shape?: 'round' | 'square'
@@ -24,7 +24,7 @@ export default function PhotoUpload({ bucket, currentUrl, onUpload, shape = 'rou
     try {
       const compressed = await compressImage(
         file,
-        bucket === 'Avatars' ? 400 : 800,
+        bucket === 'avatars' ? 400 : 800,
         0.75
       )
 

@@ -9,13 +9,13 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  title: 'Qui mange quoi',
+  title: 'Qui mange quoi ?',
   description: 'Organisez vos repas en tenant compte des goûts de chacun',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'Qui mange quoi',
+    title: 'Qui mange quoi ?',
   },
   icons: {
     apple: '/logo-icon.png',
@@ -33,7 +33,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/logo-icon.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="Qui mange quoi" />
+        <meta name="apple-mobile-web-app-title" content="Qui mange quoi ?" />
         <link rel="manifest" href="/manifest.json" />
       </head>
       <body style={{ minHeight: '100vh', background: '#F0F7F0', paddingBottom: 80 }}>

@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
     const { guestEmail, guestName, organizerName, mealName, inviteLink } = await req.json()
 
     const { data, error } = await resend.emails.send({
-      from: 'Qui mange quoi <onboarding@resend.dev>',
+      from: 'Qui mange quoi ? <onboarding@resend.dev>',
       to: guestEmail,
       subject: `${organizerName} vous invite à "${mealName}" 🍽️`,
       html: `
@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
           </div>
 
           <p style="text-align: center; font-size: 11px; color: #AAA; margin: 0;">
-            🔒 Vos données sont sécurisées et confidentielles · Qui mange quoi
+            🔒 Vos données sont sécurisées et confidentielles · Qui mange quoi ?
           </p>
         </div>
       `

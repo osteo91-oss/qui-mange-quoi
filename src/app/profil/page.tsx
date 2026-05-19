@@ -1,6 +1,6 @@
 'use client'
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Navbar from '@/components/Navbar'
 import PhotoUpload from '@/components/PhotoUpload'
@@ -10,7 +10,7 @@ const ALLERGIES = ['Gluten', 'Lactose', 'Fruits à coque', 'Arachides', 'Oeufs',
 const DIETS = ['Végétarien', 'Végétalien', 'Pescétarien', 'Sans gluten', 'Sans porc', 'Halal', 'Casher', 'Paléo', 'Cétogène']
 const CUISINES = ['Française', 'Italienne', 'Japonaise', 'Mexicaine', 'Indienne', 'Thaïlandaise', 'Marocaine', 'Méditerranéenne']
 
-type TagColor = { bg: string, text: string, activeBg: string, activeShadow: string }
+type TagColor = { activeBg: string, activeShadow: string }
 
 function TagSelector({ label, options, selected, onChange, colors }: {
   label: string, options: string[],
@@ -31,7 +31,7 @@ function TagSelector({ label, options, selected, onChange, colors }: {
             padding: '8px 16px', borderRadius: 100,
             border: selected.includes(opt) ? 'none' : '1.5px solid #E8E8E8',
             background: selected.includes(opt) ? colors.activeBg : 'white',
-            color: selected.includes(opt) ? colors.text : '#666',
+            color: selected.includes(opt) ? 'white' : '#666',
             fontSize: 13, cursor: 'pointer',
             fontWeight: selected.includes(opt) ? 700 : 500,
             boxShadow: selected.includes(opt) ? colors.activeShadow : '0 1px 4px rgba(0,0,0,0.06)',
@@ -44,8 +44,11 @@ function TagSelector({ label, options, selected, onChange, colors }: {
   )
 }
 
-export default function ProfilPage() {
+function ProfilContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const isOnboarding = searchParams?.get('onboarding') === 'true'
+
   const [profile, setProfile] = useState<Partial<Profile & { avatar_url: string }>>({
     name: '', allergies: [], diets: [], dislikes: [], cuisines: [], avatar_url: ''
   })
@@ -70,7 +73,10 @@ export default function ProfilPage() {
     await supabase.from('profiles').upsert({ ...profile, id: user.id })
     setLoading(false)
     setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
+    setTimeout(() => {
+      setSaved(false)
+      if (isOnboarding) router.push('/')
+    }, 1500)
   }
 
   const handleLogout = async () => {
@@ -85,7 +91,7 @@ export default function ProfilPage() {
   ]
 
   return (
-    <div style={{ maxWidth: 480, margin: '0 auto', background: '#F1F8F1', minHeight: '100vh' }}>
+    <div style={{ maxWidth: 480, margin: '0 auto', background: '#F0F7F0', minHeight: '100vh' }}>
 
       <div style={{
         background: 'white', padding: '14px 20px',
@@ -94,19 +100,39 @@ export default function ProfilPage() {
       }}>
         <div style={{ fontSize: 18, fontWeight: 900, letterSpacing: -0.5 }}>
           <span style={{ color: '#2E7D32' }}>Qui mange </span>
-          <span style={{ color: '#F57C00' }}>quoi</span>
+          <span style={{ color: '#F57C00' }}>quoi ?</span>
         </div>
-        <button onClick={handleLogout} style={{
-          fontSize: 13, color: '#AAA', background: 'none',
-          border: 'none', cursor: 'pointer', fontWeight: 600
-        }}>
-          Déconnexion
-        </button>
+        {!isOnboarding && (
+          <button onClick={handleLogout} style={{
+            fontSize: 13, color: '#AAA', background: 'none',
+            border: 'none', cursor: 'pointer', fontWeight: 600
+          }}>
+            Déconnexion
+          </button>
+        )}
       </div>
 
       <div style={{ padding: '20px 16px 100px' }}>
 
-        {/* Avatar card */}
+        {isOnboarding && (
+          <div style={{
+            background: 'linear-gradient(135deg, #E8F5E9, #C8E6C9)',
+            borderRadius: 20, padding: '16px 20px', marginBottom: 16,
+            border: '1px solid #A5D6A7',
+            display: 'flex', alignItems: 'flex-start', gap: 12
+          }}>
+            <span style={{ fontSize: 28 }}>👋</span>
+            <div>
+              <p style={{ fontSize: 15, fontWeight: 800, color: '#1B5E20', margin: '0 0 4px' }}>
+                Bienvenue ! Remplissez votre profil
+              </p>
+              <p style={{ fontSize: 13, color: '#43A047', margin: 0, lineHeight: 1.5 }}>
+                Indiquez vos allergies, régimes et goûts pour que l'organisateur puisse composer un menu qui vous convient.
+              </p>
+            </div>
+          </div>
+        )}
+
         <div style={{
           background: 'white', borderRadius: 24,
           padding: '28px 20px 20px',
@@ -147,7 +173,6 @@ export default function ProfilPage() {
             Appuyez sur la photo pour la modifier
           </p>
 
-          {/* Stats profil */}
           <div style={{ display: 'flex', justifyContent: 'center', gap: 20, marginTop: 16, paddingTop: 16, borderTop: '1px solid #F5F5F5' }}>
             <div style={{ textAlign: 'center' }}>
               <p style={{ fontSize: 18, fontWeight: 800, color: '#43A047', margin: 0 }}>{(profile.diets || []).length}</p>
@@ -164,7 +189,6 @@ export default function ProfilPage() {
           </div>
         </div>
 
-        {/* Tabs */}
         <div style={{
           display: 'flex', background: 'white',
           borderRadius: 16, padding: 4, marginBottom: 16,
@@ -184,7 +208,6 @@ export default function ProfilPage() {
           ))}
         </div>
 
-        {/* Content */}
         <div style={{
           background: 'white', borderRadius: 20,
           padding: 20,
@@ -197,11 +220,7 @@ export default function ProfilPage() {
               options={DIETS}
               selected={profile.diets || []}
               onChange={v => setProfile({ ...profile, diets: v })}
-              colors={{
-                bg: '#E8F5E9', text: 'white',
-                activeBg: '#43A047',
-                activeShadow: '0 2px 8px rgba(67,160,71,0.4)'
-              }}
+              colors={{ activeBg: '#43A047', activeShadow: '0 2px 8px rgba(67,160,71,0.4)' }}
             />
           )}
 
@@ -212,11 +231,7 @@ export default function ProfilPage() {
                 options={CUISINES}
                 selected={profile.cuisines || []}
                 onChange={v => setProfile({ ...profile, cuisines: v })}
-                colors={{
-                  bg: '#FFF3E0', text: 'white',
-                  activeBg: '#F57C00',
-                  activeShadow: '0 2px 8px rgba(245,124,0,0.4)'
-                }}
+                colors={{ activeBg: '#F57C00', activeShadow: '0 2px 8px rgba(245,124,0,0.4)' }}
               />
               <p style={{ fontSize: 11, fontWeight: 800, color: '#999', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>
                 Aliments non aimés
@@ -229,7 +244,7 @@ export default function ProfilPage() {
                 style={{
                   width: '100%', padding: '12px 14px', borderRadius: 12,
                   border: '1.5px solid #E8E8E8', fontSize: 14,
-                  outline: 'none', background: '#F9F9F9', resize: 'none',
+                  outline: 'none', background: '#F8F8F8', resize: 'none',
                   color: '#1a1a1a', fontFamily: 'inherit'
                 }}
               />
@@ -242,11 +257,7 @@ export default function ProfilPage() {
               options={ALLERGIES}
               selected={profile.allergies || []}
               onChange={v => setProfile({ ...profile, allergies: v })}
-              colors={{
-                bg: '#FFEBEE', text: 'white',
-                activeBg: '#E53935',
-                activeShadow: '0 2px 8px rgba(229,57,53,0.4)'
-              }}
+              colors={{ activeBg: '#E53935', activeShadow: '0 2px 8px rgba(229,57,53,0.4)' }}
             />
           )}
         </div>
@@ -258,11 +269,19 @@ export default function ProfilPage() {
           fontSize: 15, fontWeight: 700, cursor: 'pointer',
           boxShadow: '0 4px 12px rgba(67,160,71,0.4)',
         }}>
-          {saved ? '✓ Profil enregistré !' : loading ? 'Enregistrement...' : 'Enregistrer mon profil'}
+          {saved ? '✓ Profil enregistré !' : loading ? 'Enregistrement...' : isOnboarding ? 'Enregistrer et continuer →' : 'Enregistrer mon profil'}
         </button>
       </div>
 
       <Navbar />
     </div>
+  )
+}
+
+export default function ProfilPage() {
+  return (
+    <Suspense fallback={<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}><p style={{ color: '#AAA' }}>Chargement...</p></div>}>
+      <ProfilContent />
+    </Suspense>
   )
 }

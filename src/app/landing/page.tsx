@@ -277,7 +277,7 @@ export default function LandingPage() {
           Prêt pour votre prochain repas ?
         </h2>
         <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 15, margin: '0 0 28px', lineHeight: 1.6 }}>
-          Rejoignez des milliers d'organisateurs qui utilisent<br />Qui mange quoi pour des repas réussis.
+          Rejoignez des milliers d'organisateurs qui utilisent<br />Qui mange quoi ? pour des repas réussis.
         </p>
         <Link href="/auth">
           <button style={{
@@ -297,7 +297,7 @@ export default function LandingPage() {
       {/* Footer */}
       <div style={{ padding: '24px', textAlign: 'center', borderTop: '1px solid #F0F0F0' }}>
         <p style={{ fontSize: 12, color: '#CCC', margin: 0 }}>
-          © 2025 Qui mange quoi · Fait avec ❤️ pour de meilleurs moments à table
+          © 2025 Qui mange quoi ? · Fait avec ❤️ pour de meilleurs moments à table
         </p>
       </div>
     </div>

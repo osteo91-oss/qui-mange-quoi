@@ -18,7 +18,7 @@ export default function HomePage() {
   useEffect(() => {
     const load = async () => {
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { router.push('/auth'); return }
+      if (!user) { router.push('/landing'); return }
       const { data: profile } = await supabase
         .from('profiles').select('name, avatar_url').eq('id', user.id).single()
       if (profile) { setUserName(profile.name); setUserAvatar(profile.avatar_url || '') }

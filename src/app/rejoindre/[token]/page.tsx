@@ -17,9 +17,18 @@ export default function RejoindreRepas({ params }: { params: Promise<{ token: st
 
       const { data: meal } = await supabase
         .from('meals')
-        .select('*, profiles(name)')
+        .select('*')
         .eq('invite_token', token)
         .single()
+
+      if (meal) {
+        const { data: organizer } = await supabase
+          .from('profiles')
+          .select('name')
+          .eq('id', meal.organizer_id)
+          .single()
+        setOrganizerName(organizer?.name || '')
+      }
 
       if (!meal) { setStatus('error'); return }
       setMealName(meal.name)

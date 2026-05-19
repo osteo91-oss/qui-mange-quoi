@@ -41,27 +41,38 @@ export default function HomePage() {
 
   if (loading) return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#F7F5F0' }}>
-      <img src="/logo-icon.png" alt="Logo" style={{ width: 64, marginBottom: 16, opacity: 0.6 }} />
-      <p style={{ color: '#AAA', fontSize: 14 }}>Chargement...</p>
+      <img src="/logo-icon.png" alt="Logo" style={{ width: 64, marginBottom: 16, opacity: 0.5 }} />
+      <p style={{ color: '#BBB', fontSize: 14 }}>Chargement...</p>
     </div>
   )
+
+  const getGreeting = () => {
+    const h = new Date().getHours()
+    if (h < 12) return 'Bonjour'
+    if (h < 18) return 'Bon après-midi'
+    return 'Bonsoir'
+  }
 
   return (
     <div style={{ maxWidth: 480, margin: '0 auto', background: '#F7F5F0', minHeight: '100vh' }}>
 
+      {/* Header */}
       <div style={{
-        background: 'white', padding: '20px 20px 16px',
-        borderBottom: '0.5px solid #E8E4DC',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+        background: 'white',
+        padding: '16px 20px',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        boxShadow: '0 1px 0 rgba(0,0,0,0.06)'
       }}>
-        <img src="/logo-icon.png" alt="Qui mange quoi" style={{ width: 40, height: 40 }} />
-        <img src="/logo.png" alt="Qui mange quoi" style={{ height: 32 }} />
+        <img src="/logo-icon.png" alt="Logo" style={{ width: 38, height: 38 }} />
+        <img src="/logo.png" alt="Qui mange quoi" style={{ height: 28 }} />
         <Link href="/profil">
           <div style={{
-            width: 36, height: 36, borderRadius: '50%',
-            background: '#E8F0E8', display: 'flex',
-            alignItems: 'center', justifyContent: 'center',
-            fontSize: 15, fontWeight: 700, color: '#3B6E3F', cursor: 'pointer'
+            width: 38, height: 38, borderRadius: '50%',
+            background: 'linear-gradient(135deg, #3B6E3F, #2A5230)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 15, fontWeight: 700, color: 'white',
+            cursor: 'pointer',
+            boxShadow: '0 2px 8px rgba(59,110,63,0.3)'
           }}>
             {userName.charAt(0).toUpperCase()}
           </div>
@@ -70,88 +81,120 @@ export default function HomePage() {
 
       <div style={{ padding: '20px 16px 100px' }}>
 
+        {/* Hero card */}
         <div style={{
-          background: '#3B6E3F', borderRadius: 20, padding: '20px',
-          marginBottom: 20, display: 'flex',
-          alignItems: 'center', justifyContent: 'space-between'
+          borderRadius: 24,
+          overflow: 'hidden',
+          marginBottom: 24,
+          position: 'relative',
+          boxShadow: '0 8px 32px rgba(59,110,63,0.2)',
         }}>
-          <div>
-            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13, margin: '0 0 4px' }}>
-              Bonjour {userName} 👋
+          <div style={{
+            background: 'linear-gradient(135deg, #2A5230 0%, #3B6E3F 50%, #4A8A4E 100%)',
+            padding: '24px 24px 28px',
+          }}>
+            <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: 14, margin: '0 0 6px', fontWeight: 400 }}>
+              {getGreeting()}, {userName} 👋
             </p>
-            <p style={{ color: 'white', fontSize: 18, fontWeight: 700, margin: '0 0 12px', lineHeight: 1.3 }}>
+            <p style={{ color: 'white', fontSize: 22, fontWeight: 700, margin: '0 0 6px', lineHeight: 1.3, letterSpacing: -0.5 }}>
               Prêt pour votre<br />prochain repas ?
+            </p>
+            <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 13, margin: '0 0 20px' }}>
+              {meals.length === 0 ? 'Créez votre premier repas' : `${meals.length} repas organisé${meals.length > 1 ? 's' : ''}`}
             </p>
             <Link href="/repas/nouveau">
               <button style={{
-                background: '#E8874A', color: 'white', border: 'none',
-                borderRadius: 100, padding: '10px 20px',
-                fontSize: 13, fontWeight: 600, cursor: 'pointer'
+                background: '#E8874A',
+                color: 'white', border: 'none',
+                borderRadius: 100, padding: '12px 24px',
+                fontSize: 14, fontWeight: 600, cursor: 'pointer',
+                boxShadow: '0 4px 12px rgba(232,135,74,0.4)',
+                letterSpacing: 0.2
               }}>
                 + Nouveau repas
               </button>
             </Link>
+
+            {/* Decoration */}
+            <div style={{
+              position: 'absolute', right: -10, top: -10,
+              width: 140, height: 140,
+              borderRadius: '50%',
+              background: 'rgba(255,255,255,0.05)',
+            }} />
+            <div style={{
+              position: 'absolute', right: 20, top: 20,
+              width: 80, height: 80,
+              borderRadius: '50%',
+              background: 'rgba(255,255,255,0.07)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center'
+            }}>
+              <span style={{ fontSize: 36 }}>🍽️</span>
+            </div>
           </div>
-          <img src="/logo-icon.png" alt="" style={{ width: 80, opacity: 0.15 }} />
         </div>
 
-        <p style={{
-          fontSize: 11, fontWeight: 600, color: '#AAA',
-          letterSpacing: 1, textTransform: 'uppercase',
-          marginBottom: 12, paddingLeft: 4
-        }}>
-          Mes repas ({meals.length})
-        </p>
+        {/* Section titre */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+          <p style={{ fontSize: 13, fontWeight: 700, color: '#888', letterSpacing: 0.8, textTransform: 'uppercase', margin: 0 }}>
+            Mes repas
+          </p>
+          <span style={{ fontSize: 12, color: '#BBB', fontWeight: 500 }}>{meals.length}</span>
+        </div>
 
         {meals.length === 0 ? (
           <div style={{
-            background: 'white', borderRadius: 20, padding: 32,
-            textAlign: 'center', border: '0.5px solid #E8E4DC'
+            background: 'white', borderRadius: 20, padding: '36px 24px',
+            textAlign: 'center',
+            boxShadow: '0 2px 16px rgba(0,0,0,0.06)',
+            border: '0.5px solid rgba(0,0,0,0.06)'
           }}>
-            <img src="/logo-icon.png" alt="" style={{ width: 56, marginBottom: 12, opacity: 0.3 }} />
-            <p style={{ fontWeight: 600, color: '#3B6E3F', marginBottom: 6, fontSize: 16 }}>
+            <div style={{ fontSize: 48, marginBottom: 12 }}>🥗</div>
+            <p style={{ fontWeight: 700, color: '#1B3A1E', marginBottom: 6, fontSize: 17 }}>
               Aucun repas encore
             </p>
-            <p style={{ fontSize: 13, color: '#AAA', marginBottom: 20, lineHeight: 1.5 }}>
+            <p style={{ fontSize: 14, color: '#AAA', marginBottom: 24, lineHeight: 1.6 }}>
               Créez votre premier repas et invitez<br />vos convives en un clic.
             </p>
             <Link href="/repas/nouveau">
               <button style={{
                 background: '#3B6E3F', color: 'white', border: 'none',
-                borderRadius: 100, padding: '12px 28px',
-                fontSize: 14, fontWeight: 600, cursor: 'pointer'
+                borderRadius: 100, padding: '13px 32px',
+                fontSize: 15, fontWeight: 600, cursor: 'pointer',
+                boxShadow: '0 4px 12px rgba(59,110,63,0.3)'
               }}>
                 + Créer un repas
               </button>
             </Link>
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {meals.map(meal => (
               <div key={meal.id}>
                 {confirmId === meal.id ? (
                   <div style={{
                     background: '#FEF0F0', borderRadius: 20, padding: '16px',
-                    border: '0.5px solid #FFCDD2'
+                    border: '0.5px solid #FFCDD2',
+                    boxShadow: '0 2px 12px rgba(198,40,40,0.08)'
                   }}>
-                    <p style={{ fontSize: 14, fontWeight: 600, color: '#C62828', margin: '0 0 4px' }}>
+                    <p style={{ fontSize: 14, fontWeight: 700, color: '#C62828', margin: '0 0 4px' }}>
                       Supprimer ce repas ?
                     </p>
-                    <p style={{ fontSize: 12, color: '#888', margin: '0 0 14px' }}>
+                    <p style={{ fontSize: 13, color: '#888', margin: '0 0 14px' }}>
                       "{meal.name}" sera définitivement supprimé.
                     </p>
                     <div style={{ display: 'flex', gap: 8 }}>
                       <button onClick={() => setConfirmId(null)} style={{
-                        flex: 1, padding: '10px', borderRadius: 100,
+                        flex: 1, padding: '11px', borderRadius: 100,
                         border: '0.5px solid #E0DDD6', background: 'white',
-                        fontSize: 13, fontWeight: 500, cursor: 'pointer', color: '#555'
+                        fontSize: 14, fontWeight: 500, cursor: 'pointer', color: '#555'
                       }}>
                         Annuler
                       </button>
                       <button onClick={() => handleDelete(meal.id)} disabled={deletingId === meal.id} style={{
-                        flex: 1, padding: '10px', borderRadius: 100,
+                        flex: 1, padding: '11px', borderRadius: 100,
                         border: 'none', background: '#C62828',
-                        fontSize: 13, fontWeight: 600, cursor: 'pointer', color: 'white'
+                        fontSize: 14, fontWeight: 600, cursor: 'pointer', color: 'white'
                       }}>
                         {deletingId === meal.id ? 'Suppression...' : 'Supprimer'}
                       </button>
@@ -159,53 +202,54 @@ export default function HomePage() {
                   </div>
                 ) : (
                   <div style={{
-                    background: 'white', borderRadius: 20, padding: '16px',
-                    border: '0.5px solid #E8E4DC',
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+                    background: 'white', borderRadius: 20,
+                    overflow: 'hidden',
+                    boxShadow: '0 2px 16px rgba(0,0,0,0.07)',
+                    border: '0.5px solid rgba(0,0,0,0.05)',
+                    display: 'flex', alignItems: 'stretch',
                   }}>
-                    <Link href={`/repas/${meal.id}`} style={{ textDecoration: 'none', flex: 1, display: 'flex', alignItems: 'center', gap: 14 }}>
+                    <Link href={`/repas/${meal.id}`} style={{ textDecoration: 'none', flex: 1, display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px' }}>
                       <div style={{
-                        width: 48, height: 48, borderRadius: 14,
-                        background: '#E8F0E8', overflow: 'hidden',
+                        width: 54, height: 54, borderRadius: 16,
+                        overflow: 'hidden', flexShrink: 0,
+                        background: 'linear-gradient(135deg, #E8F0E8, #C8DEC8)',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        flexShrink: 0
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
                       }}>
                         {meal.photo_url
                           ? <img src={meal.photo_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={meal.name} />
-                          : <img src="/logo-icon.png" alt="" style={{ width: 32 }} />
+                          : <span style={{ fontSize: 26 }}>🍽️</span>
                         }
                       </div>
-                      <div>
-                        <p style={{ fontWeight: 600, color: '#1B3A1E', margin: 0, fontSize: 15 }}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{ fontWeight: 700, color: '#1B3A1E', margin: '0 0 3px', fontSize: 15, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                           {meal.name}
                         </p>
-                        {meal.date && (
-                          <p style={{ fontSize: 12, color: '#AAA', margin: '3px 0 0' }}>
-                            {new Date(meal.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
+                        {meal.date ? (
+                          <p style={{ fontSize: 12, color: '#AAA', margin: 0, fontWeight: 400 }}>
+                            📅 {new Date(meal.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
                           </p>
-                        )}
-                        {!(meal as any).date && (meal as any).date_mode === 'doodle' && (
-                          <p style={{ fontSize: 12, color: '#3B6E3F', margin: '3px 0 0', fontWeight: 500 }}>
+                        ) : (meal as any).date_mode === 'doodle' ? (
+                          <p style={{ fontSize: 12, color: '#E8874A', margin: 0, fontWeight: 600 }}>
                             🗳️ Sondage en cours
                           </p>
+                        ) : null}
+                        {meal.ai_menu && (
+                          <span style={{
+                            display: 'inline-block', marginTop: 4,
+                            fontSize: 11, background: '#E8F5E8',
+                            color: '#2E7D32', padding: '2px 8px',
+                            borderRadius: 100, fontWeight: 600
+                          }}>✓ Menu prêt</span>
                         )}
                       </div>
                     </Link>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-                      {meal.ai_menu && (
-                        <span style={{
-                          fontSize: 11, background: '#E8F0E8',
-                          color: '#3B6E3F', padding: '4px 10px',
-                          borderRadius: 100, fontWeight: 600
-                        }}>Menu ✓</span>
-                      )}
-                      <button onClick={() => setConfirmId(meal.id)} style={{
-                        background: '#FEF0F0', border: 'none', borderRadius: '50%',
-                        width: 32, height: 32, fontSize: 14,
-                        cursor: 'pointer', color: '#C62828',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center'
-                      }}>🗑️</button>
-                    </div>
+                    <button onClick={() => setConfirmId(meal.id)} style={{
+                      background: 'transparent', border: 'none',
+                      borderLeft: '0.5px solid rgba(0,0,0,0.05)',
+                      padding: '0 16px', cursor: 'pointer',
+                      color: '#DDD', fontSize: 18, flexShrink: 0
+                    }}>🗑️</button>
                   </div>
                 )}
               </div>

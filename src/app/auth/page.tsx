@@ -60,33 +60,20 @@ export default function AuthPage() {
         width: 200, height: 200, borderRadius: '50%',
         background: 'rgba(255,255,255,0.04)'
       }} />
-      <div style={{
-        position: 'absolute', top: '30%', right: -40,
-        width: 120, height: 120, borderRadius: '50%',
-        background: 'rgba(232,135,74,0.1)'
-      }} />
 
       <div style={{ width: '100%', maxWidth: 380, position: 'relative', zIndex: 1 }}>
 
-        {/* Logo section */}
+        {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: 40 }}>
           <img
-            src="/logo-icon.png"
+            src="/logo.png"
             alt="Qui mange quoi"
-            style={{ width: 80, height: 80, marginBottom: 16, filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.3))' }}
+            style={{
+              width: 260, display: 'block',
+              margin: '0 auto',
+              filter: 'drop-shadow(0 4px 20px rgba(0,0,0,0.25))'
+            }}
           />
-          <h1 style={{
-            fontSize: 32, fontWeight: 800, color: 'white',
-            margin: '0 0 6px', letterSpacing: -1
-          }}>
-            Qui mange <span style={{ color: '#E8874A' }}>quoi</span>
-          </h1>
-          <p style={{
-            fontSize: 15, color: 'rgba(255,255,255,0.55)',
-            margin: 0, fontStyle: 'italic', letterSpacing: 0.3
-          }}>
-            Eat together. Really together.
-          </p>
         </div>
 
         {/* Form card */}
@@ -185,8 +172,7 @@ export default function AuthPage() {
                 background: '#FEF0F0', color: '#C62828',
                 padding: '12px 14px', borderRadius: 12,
                 fontSize: 13, marginBottom: 16,
-                border: '0.5px solid #FFCDD2',
-                fontWeight: 500
+                border: '0.5px solid #FFCDD2', fontWeight: 500
               }}>
                 ⚠️ {error}
               </div>
@@ -194,7 +180,7 @@ export default function AuthPage() {
 
             <button type="submit" disabled={loading} style={{
               width: '100%', padding: '15px',
-              background: loading ? '#AAA' : 'linear-gradient(135deg, #3B6E3F, #2A5230)',
+              background: loading ? '#AAA' : '#3B6E3F',
               color: 'white', border: 'none', borderRadius: 100,
               fontSize: 15, fontWeight: 700, cursor: 'pointer',
               boxShadow: '0 4px 16px rgba(59,110,63,0.4)',

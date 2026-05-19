@@ -16,17 +16,17 @@ export default function Navbar() {
       boxShadow: '0 -4px 20px rgba(0,0,0,0.06)'
     }}>
       <Link href="/" style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, textDecoration: 'none' }}>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={pathname === '/' ? '#3B6E3F' : '#C0C0C0'} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={pathname === '/' ? '#43A047' : '#C0C0C0'} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
           <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
         </svg>
-        <span style={{ fontSize: 10, color: pathname === '/' ? '#3B6E3F' : '#C0C0C0', fontWeight: pathname === '/' ? 600 : 400 }}>Accueil</span>
+        <span style={{ fontSize: 10, color: pathname === '/' ? '#43A047' : '#C0C0C0', fontWeight: pathname === '/' ? 600 : 400 }}>Accueil</span>
       </Link>
 
       <Link href="/repas" style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, textDecoration: 'none' }}>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={pathname.startsWith('/repas') ? '#3B6E3F' : '#C0C0C0'} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={pathname.startsWith('/repas') ? '#43A047' : '#C0C0C0'} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
           <path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/>
         </svg>
-        <span style={{ fontSize: 10, color: pathname.startsWith('/repas') ? '#3B6E3F' : '#C0C0C0', fontWeight: pathname.startsWith('/repas') ? 600 : 400 }}>Repas</span>
+        <span style={{ fontSize: 10, color: pathname.startsWith('/repas') ? '#43A047' : '#C0C0C0', fontWeight: pathname.startsWith('/repas') ? 600 : 400 }}>Repas</span>
       </Link>
 
       <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -47,17 +47,17 @@ export default function Navbar() {
       </div>
 
       <Link href="/profil" style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, textDecoration: 'none' }}>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={pathname === '/profil' ? '#3B6E3F' : '#C0C0C0'} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={pathname === '/profil' ? '#43A047' : '#C0C0C0'} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
           <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
         </svg>
-        <span style={{ fontSize: 10, color: pathname === '/profil' ? '#3B6E3F' : '#C0C0C0', fontWeight: pathname === '/profil' ? 600 : 400 }}>Profil</span>
+        <span style={{ fontSize: 10, color: pathname === '/profil' ? '#43A047' : '#C0C0C0', fontWeight: pathname === '/profil' ? 600 : 400 }}>Profil</span>
       </Link>
 
       <Link href="/recherche" style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, textDecoration: 'none' }}>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={pathname === '/recherche' ? '#3B6E3F' : '#C0C0C0'} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={pathname === '/recherche' ? '#43A047' : '#C0C0C0'} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
         </svg>
-        <span style={{ fontSize: 10, color: pathname === '/recherche' ? '#3B6E3F' : '#C0C0C0', fontWeight: pathname === '/recherche' ? 600 : 400 }}>Recherche</span>
+        <span style={{ fontSize: 10, color: pathname === '/recherche' ? '#43A047' : '#C0C0C0', fontWeight: pathname === '/recherche' ? 600 : 400 }}>Recherche</span>
       </Link>
     </nav>
   )

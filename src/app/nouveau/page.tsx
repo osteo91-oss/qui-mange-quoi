@@ -65,7 +65,7 @@ export default function NouveauChoixPage() {
               La date est déjà choisie. J'invite mes convives et on compose le menu ensemble.
             </p>
             <span style={{
-              fontSize: 12, background: '#E8F0E8', color: '#3B6E3F',
+              fontSize: 12, background: '#E8F0E8', color: '#43A047',
               padding: '4px 10px', borderRadius: 100, fontWeight: 600
             }}>
               📅 Date fixe

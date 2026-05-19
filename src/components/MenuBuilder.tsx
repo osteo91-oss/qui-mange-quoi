@@ -67,7 +67,7 @@ export default function MenuBuilder({ suggestions, onValidate }: Props) {
               onClick={() => setSelected({ ...selected, [course]: i })}
               style={{
                 borderRadius: 16, padding: '14px 16px',
-                border: selected[course] === i ? '2px solid #3B6E3F' : '0.5px solid #E8E4DC',
+                border: selected[course] === i ? '2px solid #43A047' : '0.5px solid #E8E4DC',
                 marginBottom: 8, cursor: 'pointer',
                 background: selected[course] === i ? '#E8F0E8' : 'white'
               }}>
@@ -90,7 +90,7 @@ export default function MenuBuilder({ suggestions, onValidate }: Props) {
                 <div style={{
                   width: 24, height: 24, borderRadius: '50%', flexShrink: 0,
                   border: selected[course] === i ? 'none' : '1.5px solid #DDD',
-                  background: selected[course] === i ? '#3B6E3F' : 'white',
+                  background: selected[course] === i ? '#43A047' : 'white',
                   display: 'flex', alignItems: 'center', justifyContent: 'center'
                 }}>
                   {selected[course] === i && (
@@ -106,7 +106,7 @@ export default function MenuBuilder({ suggestions, onValidate }: Props) {
       {allSelected ? (
         <button onClick={handleValidate} style={{
           width: '100%', padding: '14px',
-          background: '#3B6E3F', color: 'white',
+          background: '#43A047', color: 'white',
           border: 'none', borderRadius: 100,
           fontSize: 15, fontWeight: 600, cursor: 'pointer',
           marginTop: 8

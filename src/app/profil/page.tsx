@@ -119,7 +119,7 @@ export default function ProfilPage() {
               <div style={{
                 position: 'absolute', bottom: 2, right: 2,
                 width: 26, height: 26, borderRadius: '50%',
-                background: '#3B6E3F', border: '2px solid white',
+                background: '#43A047', border: '2px solid white',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: 12
               }}>📷</div>
@@ -153,7 +153,7 @@ export default function ProfilPage() {
               flex: 1, padding: '10px 0', borderRadius: 12,
               border: 'none', fontSize: 13, fontWeight: 600,
               cursor: 'pointer', transition: 'all 0.15s',
-              background: activeTab === tab ? '#3B6E3F' : 'transparent',
+              background: activeTab === tab ? '#43A047' : 'transparent',
               color: activeTab === tab ? 'white' : '#AAA',
               boxShadow: activeTab === tab ? '0 2px 8px rgba(59,110,63,0.3)' : 'none'
             }}>
@@ -176,7 +176,7 @@ export default function ProfilPage() {
               options={DIETS}
               selected={profile.diets || []}
               onChange={v => setProfile({ ...profile, diets: v })}
-              color="#3B6E3F"
+              color="#43A047"
             />
           )}
 
@@ -220,7 +220,7 @@ export default function ProfilPage() {
 
         <button onClick={handleSave} disabled={loading} style={{
           width: '100%', padding: '15px',
-          background: saved ? '#388E3C' : '#3B6E3F',
+          background: saved ? '#388E3C' : '#43A047',
           color: 'white', border: 'none', borderRadius: 100,
           fontSize: 15, fontWeight: 700, cursor: 'pointer',
           boxShadow: saved ? '0 4px 12px rgba(56,142,60,0.4)' : '0 4px 12px rgba(59,110,63,0.3)',

@@ -4,17 +4,17 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --green-primary: #2E7D32;
+  --green-primary: #43A047;
+  --green-dark: #2E7D32;
   --green-light: #E8F5E9;
-  --green-dark: #1B4332;
-  --orange-alert: #E65100;
+  --orange: #F57C00;
   --orange-light: #FFF3E0;
-  --red-danger: #C62828;
+  --red: #E53935;
   --red-light: #FFEBEE;
   --gray-bg: #F8F9FA;
   --gray-border: #E0E0E0;
   --text-main: #1a1a1a;
-  --text-muted: #888888;
+  --text-muted: #757575;
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -32,7 +32,7 @@
 }
 
 body {
-  background-color: #F8F9FA;
+  background-color: #F1F8F1;
   color: var(--text-main);
   font-family: -apple-system, 'SF Pro Display', BlinkMacSystemFont, sans-serif;
 }

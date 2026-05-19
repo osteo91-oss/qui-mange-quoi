@@ -42,7 +42,7 @@ export default function AuthPage() {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(160deg, #1B3A1E 0%, #2A5230 40%, #3B6E3F 100%)',
+      background: 'linear-gradient(160deg, #1B3A1E 0%, #2A5230 40%, #43A047 100%)',
       display: 'flex', flexDirection: 'column',
       alignItems: 'center', justifyContent: 'center',
       padding: '0 24px',
@@ -112,7 +112,7 @@ export default function AuthPage() {
                 flex: 1, padding: '10px 0', borderRadius: 100,
                 border: 'none', fontSize: 14, fontWeight: 600,
                 cursor: 'pointer', transition: 'all 0.2s',
-                background: mode === m ? '#3B6E3F' : 'transparent',
+                background: mode === m ? '#43A047' : 'transparent',
                 color: mode === m ? 'white' : '#AAA',
                 boxShadow: mode === m ? '0 2px 8px rgba(59,110,63,0.3)' : 'none'
               }}>
@@ -197,7 +197,7 @@ export default function AuthPage() {
 
             <button type="submit" disabled={loading} style={{
               width: '100%', padding: '15px',
-              background: loading ? '#AAA' : '#3B6E3F',
+              background: loading ? '#AAA' : '#43A047',
               color: 'white', border: 'none', borderRadius: 100,
               fontSize: 15, fontWeight: 700, cursor: 'pointer',
               boxShadow: '0 4px 16px rgba(59,110,63,0.4)',

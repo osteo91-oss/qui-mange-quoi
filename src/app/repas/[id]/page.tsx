@@ -154,7 +154,7 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
             <div>
               <h1 style={{ fontSize: 18, fontWeight: 700, color: '#1B3A1E', margin: 0 }}>{meal.name}</h1>
               {!isOrganizer && (
-                <p style={{ fontSize: 12, color: '#3B6E3F', margin: '2px 0 0', fontWeight: 500 }}>
+                <p style={{ fontSize: 12, color: '#43A047', margin: '2px 0 0', fontWeight: 500 }}>
                   Vous êtes invité(e) 🎉
                 </p>
               )}
@@ -167,7 +167,7 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
             <button key={tab} onClick={() => setActiveTab(tab as any)} style={{
               flexShrink: 0, padding: '8px 16px', borderRadius: 100,
               border: 'none', fontSize: 12, fontWeight: 500, cursor: 'pointer',
-              background: activeTab === tab ? '#3B6E3F' : '#F7F5F0',
+              background: activeTab === tab ? '#43A047' : '#F7F5F0',
               color: activeTab === tab ? 'white' : '#888'
             }}>
               {tabLabels[tab]}
@@ -198,7 +198,7 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
                 />
                 <button onClick={copyInviteLink} style={{
                   padding: '10px 14px', borderRadius: 10,
-                  background: copied ? '#388E3C' : '#3B6E3F',
+                  background: copied ? '#388E3C' : '#43A047',
                   color: 'white', border: 'none', fontSize: 12,
                   fontWeight: 600, cursor: 'pointer', flexShrink: 0
                 }}>
@@ -237,7 +237,7 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
                           width: 38, height: 38, borderRadius: '50%',
                           background: '#E8F0E8', overflow: 'hidden',
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          fontSize: 15, fontWeight: 700, color: '#3B6E3F'
+                          fontSize: 15, fontWeight: 700, color: '#43A047'
                         }}>
                           {(g as any).avatar_url
                             ? <img src={(g as any).avatar_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={g.name} />
@@ -247,7 +247,7 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
                         <div>
                           <p style={{ fontSize: 14, fontWeight: 500, color: '#1a1a1a', margin: 0 }}>{g.name}</p>
                           {g.diets.length > 0 && (
-                            <p style={{ fontSize: 11, color: '#3B6E3F', margin: '2px 0 0' }}>{g.diets.join(', ')}</p>
+                            <p style={{ fontSize: 11, color: '#43A047', margin: '2px 0 0' }}>{g.diets.join(', ')}</p>
                           )}
                         </div>
                       </div>
@@ -266,7 +266,7 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
 
             <button onClick={() => setActiveTab('dates')} style={{
               width: '100%', padding: '14px',
-              background: '#3B6E3F', color: 'white',
+              background: '#43A047', color: 'white',
               border: 'none', borderRadius: 100,
               fontSize: 15, fontWeight: 600, cursor: 'pointer'
             }}>
@@ -331,7 +331,7 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
             {isOrganizer && guests.length > 0 && (
               <button onClick={() => setActiveTab('synthese')} style={{
                 width: '100%', padding: '14px', marginTop: 8,
-                background: '#3B6E3F', color: 'white',
+                background: '#43A047', color: 'white',
                 border: 'none', borderRadius: 100,
                 fontSize: 15, fontWeight: 600, cursor: 'pointer'
               }}>
@@ -433,7 +433,7 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
                         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                         padding: '12px 14px', borderRadius: 12, cursor: 'pointer',
                         background: courses[key as keyof typeof courses] ? '#E8F0E8' : '#F7F5F0',
-                        border: courses[key as keyof typeof courses] ? '1.5px solid #3B6E3F' : '0.5px solid #E8E4DC'
+                        border: courses[key as keyof typeof courses] ? '1.5px solid #43A047' : '0.5px solid #E8E4DC'
                       }}>
                       <div>
                         <p style={{ fontSize: 14, fontWeight: 600, color: '#1B3A1E', margin: 0 }}>{label}</p>
@@ -441,7 +441,7 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
                       </div>
                       <div style={{
                         width: 24, height: 24, borderRadius: '50%',
-                        background: courses[key as keyof typeof courses] ? '#3B6E3F' : 'white',
+                        background: courses[key as keyof typeof courses] ? '#43A047' : 'white',
                         border: courses[key as keyof typeof courses] ? 'none' : '1.5px solid #DDD',
                         display: 'flex', alignItems: 'center', justifyContent: 'center'
                       }}>
@@ -536,7 +536,7 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
                         borderBottom: i < meal.shopping_list!.length - 1 ? '0.5px solid #F5F5F5' : 'none'
                       }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <div style={{ width: 18, height: 18, borderRadius: '50%', border: '1.5px solid #3B6E3F' }} />
+                          <div style={{ width: 18, height: 18, borderRadius: '50%', border: '1.5px solid #43A047' }} />
                           <span style={{ fontSize: 14, color: '#1a1a1a' }}>{item.ingredient}</span>
                         </div>
                         <span style={{ fontSize: 13, color: '#AAA' }}>{item.quantity}</span>

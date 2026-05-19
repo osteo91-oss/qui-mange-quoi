@@ -72,7 +72,7 @@ export default function PhotoUpload({ bucket, currentUrl, onUpload, shape = 'rou
       <div style={{
         width: size, height: size, borderRadius,
         background: currentUrl ? 'transparent' : '#E8F0E8',
-        border: currentUrl ? 'none' : '2px dashed #3B6E3F',
+        border: currentUrl ? 'none' : '2px dashed #43A047',
         display: 'flex', alignItems: 'center',
         justifyContent: 'center', overflow: 'hidden',
         position: 'relative'

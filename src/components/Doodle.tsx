@@ -182,7 +182,7 @@ export default function Doodle({ mealId, isOrganizer }: Props) {
               </div>
               <button onClick={addDate} disabled={loading || !newDate} style={{
                 width: '100%', padding: '10px',
-                background: newDate ? '#3B6E3F' : '#E0E0E0',
+                background: newDate ? '#43A047' : '#E0E0E0',
                 color: 'white', border: 'none', borderRadius: 100,
                 fontSize: 13, fontWeight: 600, cursor: newDate ? 'pointer' : 'default'
               }}>
@@ -213,13 +213,13 @@ export default function Doodle({ mealId, isOrganizer }: Props) {
               <div key={date.id} style={{
                 borderRadius: 14, padding: '12px 14px', marginBottom: 8,
                 background: isBest ? '#E8F0E8' : '#F7F5F0',
-                border: isBest ? '1.5px solid #3B6E3F' : '0.5px solid #E8E4DC'
+                border: isBest ? '1.5px solid #43A047' : '0.5px solid #E8E4DC'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                   <div>
                     {isBest && (
                       <span style={{
-                        fontSize: 10, background: '#3B6E3F', color: 'white',
+                        fontSize: 10, background: '#43A047', color: 'white',
                         padding: '2px 8px', borderRadius: 100, fontWeight: 600,
                         display: 'inline-block', marginBottom: 4
                       }}>
@@ -234,7 +234,7 @@ export default function Doodle({ mealId, isOrganizer }: Props) {
                     )}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: isBest ? '#3B6E3F' : '#888' }}>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: isBest ? '#43A047' : '#888' }}>
                       {score}/{guests.length}
                     </span>
                     {isOrganizer && (
@@ -253,7 +253,7 @@ export default function Doodle({ mealId, isOrganizer }: Props) {
                       return (
                         <div key={guest.id} title={guest.name} style={{
                           width: 28, height: 28, borderRadius: '50%',
-                          background: vote?.available ? '#3B6E3F' : vote ? '#FFEBEE' : '#F0F0F0',
+                          background: vote?.available ? '#43A047' : vote ? '#FFEBEE' : '#F0F0F0',
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
                           fontSize: 11, fontWeight: 700, overflow: 'hidden',
                           color: vote?.available ? 'white' : vote ? '#C62828' : '#AAA',
@@ -270,7 +270,7 @@ export default function Doodle({ mealId, isOrganizer }: Props) {
                   <button onClick={() => toggleVote(date.id)} style={{
                     padding: '7px 16px', borderRadius: 100,
                     border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer',
-                    background: userVote?.available ? '#3B6E3F' : userVote ? '#FFEBEE' : '#F0F0F0',
+                    background: userVote?.available ? '#43A047' : userVote ? '#FFEBEE' : '#F0F0F0',
                     color: userVote?.available ? 'white' : userVote ? '#C62828' : '#888'
                   }}>
                     {userVote?.available ? '✓ Disponible' : userVote ? '✗ Indisponible' : 'Je réponds'}

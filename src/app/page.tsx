@@ -73,7 +73,7 @@ export default function HomePage() {
         <Link href="/profil">
           <div style={{
             width: 38, height: 38, borderRadius: '50%',
-            background: 'linear-gradient(135deg, #3B6E3F, #2A5230)',
+            background: 'linear-gradient(135deg, #43A047, #2A5230)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 15, fontWeight: 700, color: 'white',
             cursor: 'pointer',
@@ -95,7 +95,7 @@ export default function HomePage() {
           boxShadow: '0 8px 32px rgba(59,110,63,0.2)',
         }}>
           <div style={{
-            background: 'linear-gradient(135deg, #2A5230 0%, #3B6E3F 50%, #4A8A4E 100%)',
+            background: 'linear-gradient(135deg, #2A5230 0%, #43A047 50%, #4A8A4E 100%)',
             padding: '24px 24px 28px',
           }}>
             <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: 14, margin: '0 0 6px', fontWeight: 400 }}>
@@ -163,7 +163,7 @@ export default function HomePage() {
             </p>
             <Link href="/nouveau">
               <button style={{
-                background: '#3B6E3F', color: 'white', border: 'none',
+                background: '#43A047', color: 'white', border: 'none',
                 borderRadius: 100, padding: '13px 32px',
                 fontSize: 15, fontWeight: 600, cursor: 'pointer',
                 boxShadow: '0 4px 12px rgba(59,110,63,0.3)'

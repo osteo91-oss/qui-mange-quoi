@@ -113,7 +113,7 @@ function NouveauRepasContent() {
           <div style={{
             width: '100%', height: 160, borderRadius: 20,
             overflow: 'hidden', background: 'linear-gradient(135deg, #E8F0E8, #C8DEC8)',
-            border: photoUrl ? 'none' : '2px dashed #3B6E3F',
+            border: photoUrl ? 'none' : '2px dashed #43A047',
             display: 'flex', alignItems: 'center',
             justifyContent: 'center', position: 'relative',
             boxShadow: photoUrl ? '0 4px 16px rgba(0,0,0,0.12)' : 'none'
@@ -132,7 +132,7 @@ function NouveauRepasContent() {
                 <div style={{ fontSize: 32, marginBottom: 6 }}>
                   {uploading ? '⏳' : '📸'}
                 </div>
-                <p style={{ fontSize: 13, color: '#3B6E3F', fontWeight: 600, margin: 0 }}>
+                <p style={{ fontSize: 13, color: '#43A047', fontWeight: 600, margin: 0 }}>
                   {uploading ? 'Compression...' : 'Ajouter une photo'}
                 </p>
                 <p style={{ fontSize: 11, color: '#AAA', margin: '2px 0 0' }}>
@@ -195,7 +195,7 @@ function NouveauRepasContent() {
                   <button key={t} type="button" onClick={() => setType(t)} style={{
                     padding: '8px 16px', borderRadius: 100,
                     border: type === t ? 'none' : '0.5px solid #E0DDD6',
-                    background: type === t ? '#3B6E3F' : 'white',
+                    background: type === t ? '#43A047' : 'white',
                     color: type === t ? 'white' : '#555',
                     fontSize: 13, cursor: 'pointer',
                     fontWeight: type === t ? 600 : 400,
@@ -220,7 +220,7 @@ function NouveauRepasContent() {
                 <button type="button" onClick={() => setDateMode('fixed')} style={{
                   flex: 1, padding: '9px 0', borderRadius: 100, border: 'none',
                   fontSize: 13, fontWeight: 600, cursor: 'pointer',
-                  background: dateMode === 'fixed' ? '#3B6E3F' : 'transparent',
+                  background: dateMode === 'fixed' ? '#43A047' : 'transparent',
                   color: dateMode === 'fixed' ? 'white' : '#888',
                   boxShadow: dateMode === 'fixed' ? '0 2px 8px rgba(59,110,63,0.3)' : 'none'
                 }}>
@@ -298,7 +298,7 @@ function NouveauRepasContent() {
 
           <button type="submit" disabled={loading || uploading} style={{
             width: '100%', padding: '15px',
-            background: loading || uploading ? '#AAA' : '#3B6E3F',
+            background: loading || uploading ? '#AAA' : '#43A047',
             color: 'white', border: 'none', borderRadius: 100,
             fontSize: 15, fontWeight: 700, cursor: 'pointer',
             boxShadow: '0 4px 12px rgba(59,110,63,0.3)'

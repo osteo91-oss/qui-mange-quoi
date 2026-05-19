@@ -66,14 +66,31 @@ export default function AuthPage() {
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: 40 }}>
           <img
-            src="/logo.png"
+            src="/logo-icon.png"
             alt="Qui mange quoi"
             style={{
-              width: 260, display: 'block',
-              margin: '0 auto',
-              filter: 'drop-shadow(0 4px 20px rgba(0,0,0,0.25))'
+              width: 90, height: 90,
+              display: 'block', margin: '0 auto 16px',
+              filter: 'drop-shadow(0 6px 20px rgba(0,0,0,0.35))'
             }}
           />
+          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 8, marginBottom: 6 }}>
+            <span style={{ fontSize: 34, fontWeight: 800, color: 'white', letterSpacing: -1 }}>
+              Qui mange
+            </span>
+            <span style={{ fontSize: 34, fontWeight: 800, color: '#E8874A', letterSpacing: -1 }}>
+              Quoi
+            </span>
+          </div>
+          <p style={{
+            fontSize: 13, color: 'rgba(255,255,255,0.5)',
+            margin: 0, fontStyle: 'italic', letterSpacing: 0.5,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8
+          }}>
+            <span style={{ display: 'inline-block', width: 24, height: 1, background: 'rgba(255,255,255,0.25)', verticalAlign: 'middle' }} />
+            Eat together. Really together.
+            <span style={{ display: 'inline-block', width: 24, height: 1, background: 'rgba(255,255,255,0.25)', verticalAlign: 'middle' }} />
+          </p>
         </div>
 
         {/* Form card */}

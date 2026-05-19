@@ -33,8 +33,13 @@ export default function HomePage() {
 
   const handleDelete = async (mealId: string) => {
     setDeletingId(mealId)
-    await supabase.from('meals').delete().eq('id', mealId)
-    setMeals(meals.filter(m => m.id !== mealId))
+    const { error } = await supabase.from('meals').delete().eq('id', mealId)
+    if (error) {
+      console.error('Erreur suppression:', error)
+      setDeletingId(null)
+      return
+    }
+    setMeals(prev => prev.filter(m => m.id !== mealId))
     setDeletingId(null)
     setConfirmId(null)
   }

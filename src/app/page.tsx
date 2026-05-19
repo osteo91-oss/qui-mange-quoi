@@ -10,6 +10,7 @@ export default function HomePage() {
   const router = useRouter()
   const [meals, setMeals] = useState<Meal[]>([])
   const [userName, setUserName] = useState('')
+  const [userAvatar, setUserAvatar] = useState('')
   const [loading, setLoading] = useState(true)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [confirmId, setConfirmId] = useState<string | null>(null)
@@ -19,8 +20,8 @@ export default function HomePage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.push('/auth'); return }
       const { data: profile } = await supabase
-        .from('profiles').select('name').eq('id', user.id).single()
-      if (profile) setUserName(profile.name)
+        .from('profiles').select('name, avatar_url').eq('id', user.id).single()
+      if (profile) { setUserName(profile.name); setUserAvatar(profile.avatar_url || '') }
       const { data } = await supabase
         .from('meals').select('*')
         .eq('organizer_id', user.id)
@@ -34,20 +35,15 @@ export default function HomePage() {
   const handleDelete = async (mealId: string) => {
     setDeletingId(mealId)
     const { error } = await supabase.from('meals').delete().eq('id', mealId)
-    if (error) {
-      console.error('Erreur suppression:', error)
-      setDeletingId(null)
-      return
-    }
+    if (error) { setDeletingId(null); return }
     setMeals(prev => prev.filter(m => m.id !== mealId))
     setDeletingId(null)
     setConfirmId(null)
   }
 
   if (loading) return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#F7F5F0' }}>
-      <img src="/logo-icon.png" alt="Logo" style={{ width: 64, marginBottom: 16, opacity: 0.5 }} />
-      <p style={{ color: '#BBB', fontSize: 14 }}>Chargement...</p>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#F1F8F1' }}>
+      <p style={{ color: '#AAA', fontSize: 14 }}>Chargement...</p>
     </div>
   )
 
@@ -59,103 +55,106 @@ export default function HomePage() {
   }
 
   return (
-    <div style={{ maxWidth: 480, margin: '0 auto', background: '#F7F5F0', minHeight: '100vh' }}>
+    <div style={{ maxWidth: 480, margin: '0 auto', background: '#F1F8F1', minHeight: '100vh' }}>
 
       {/* Header */}
       <div style={{
-        background: 'white',
-        padding: '16px 20px',
+        background: 'white', padding: '14px 20px',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         boxShadow: '0 1px 0 rgba(0,0,0,0.06)'
       }}>
-        <img src="/logo-icon.png" alt="Logo" style={{ width: 38, height: 38 }} />
-        <img src="/logo-icon.png" alt="Qui mange quoi" style={{ width: 36, height: 36 }} />
+        <div style={{ fontSize: 18, fontWeight: 900, letterSpacing: -0.5 }}>
+          <span style={{ color: '#2E7D32' }}>Qui mange </span>
+          <span style={{ color: '#F57C00' }}>quoi</span>
+        </div>
         <Link href="/profil">
           <div style={{
             width: 38, height: 38, borderRadius: '50%',
-            background: 'linear-gradient(135deg, #43A047, #2A5230)',
+            overflow: 'hidden',
+            background: 'linear-gradient(135deg, #43A047, #2E7D32)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 15, fontWeight: 700, color: 'white',
-            cursor: 'pointer',
-            boxShadow: '0 2px 8px rgba(59,110,63,0.3)'
+            fontSize: 15, fontWeight: 800, color: 'white',
+            cursor: 'pointer', boxShadow: '0 2px 8px rgba(67,160,71,0.4)'
           }}>
-            {userName.charAt(0).toUpperCase()}
+            {userAvatar
+              ? <img src={userAvatar} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={userName} />
+              : userName.charAt(0).toUpperCase()
+            }
           </div>
         </Link>
       </div>
 
-      <div style={{ padding: '20px 16px 100px' }}>
+      <div style={{ padding: '16px 16px 100px' }}>
 
         {/* Hero card */}
         <div style={{
-          borderRadius: 24,
-          overflow: 'hidden',
-          marginBottom: 24,
-          position: 'relative',
-          boxShadow: '0 8px 32px rgba(59,110,63,0.2)',
+          borderRadius: 24, overflow: 'hidden',
+          marginBottom: 20,
+          boxShadow: '0 8px 32px rgba(46,125,50,0.25)',
+          background: 'linear-gradient(135deg, #2E7D32 0%, #43A047 60%, #66BB6A 100%)',
+          padding: '22px 22px 26px',
+          position: 'relative'
         }}>
-          <div style={{
-            background: 'linear-gradient(135deg, #2A5230 0%, #43A047 50%, #4A8A4E 100%)',
-            padding: '24px 24px 28px',
-          }}>
-            <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: 14, margin: '0 0 6px', fontWeight: 400 }}>
-              {getGreeting()}, {userName} 👋
-            </p>
-            <p style={{ color: 'white', fontSize: 22, fontWeight: 700, margin: '0 0 6px', lineHeight: 1.3, letterSpacing: -0.5 }}>
-              Prêt pour votre<br />prochain repas ?
-            </p>
-            <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 13, margin: '0 0 20px' }}>
-              {meals.length === 0 ? 'Créez votre premier repas' : `${meals.length} repas organisé${meals.length > 1 ? 's' : ''}`}
-            </p>
-            <Link href="/nouveau">
-              <button style={{
-                background: '#E8874A',
-                color: 'white', border: 'none',
-                borderRadius: 100, padding: '12px 24px',
-                fontSize: 14, fontWeight: 600, cursor: 'pointer',
-                boxShadow: '0 4px 12px rgba(232,135,74,0.4)',
-                letterSpacing: 0.2
-              }}>
-                + Nouveau repas
-              </button>
-            </Link>
-
-            {/* Decoration */}
-            <div style={{
-              position: 'absolute', right: -10, top: -10,
-              width: 140, height: 140,
-              borderRadius: '50%',
-              background: 'rgba(255,255,255,0.05)',
-            }} />
-            <div style={{
-              position: 'absolute', right: 20, top: 20,
-              width: 80, height: 80,
-              borderRadius: '50%',
-              background: 'rgba(255,255,255,0.07)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center'
+          <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13, margin: '0 0 4px' }}>
+            {getGreeting()}, {userName} 👋
+          </p>
+          <p style={{ color: 'white', fontSize: 22, fontWeight: 800, margin: '0 0 4px', lineHeight: 1.25, letterSpacing: -0.5 }}>
+            Prêt pour votre<br />prochain repas ?
+          </p>
+          <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12, margin: '0 0 18px' }}>
+            {meals.length === 0 ? 'Créez votre premier repas' : `${meals.length} repas organisé${meals.length > 1 ? 's' : ''}`}
+          </p>
+          <Link href="/nouveau">
+            <button style={{
+              background: '#F57C00', color: 'white', border: 'none',
+              borderRadius: 100, padding: '11px 22px',
+              fontSize: 14, fontWeight: 700, cursor: 'pointer',
+              boxShadow: '0 4px 12px rgba(245,124,0,0.5)'
             }}>
-              <span style={{ fontSize: 36 }}>🍽️</span>
-            </div>
-          </div>
+              + Nouveau repas
+            </button>
+          </Link>
+          <div style={{
+            position: 'absolute', right: 16, top: 16,
+            fontSize: 64, opacity: 0.15
+          }}>🍽️</div>
         </div>
 
+        {/* Stats row */}
+        {meals.length > 0 && (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 20 }}>
+            {[
+              { label: 'Repas', value: meals.length, color: '#43A047', bg: '#E8F5E9' },
+              { label: 'Avec menu', value: meals.filter(m => m.ai_menu).length, color: '#F57C00', bg: '#FFF3E0' },
+              { label: 'Sondages', value: meals.filter(m => (m as any).date_mode === 'doodle').length, color: '#1976D2', bg: '#E3F2FD' },
+            ].map(stat => (
+              <div key={stat.label} style={{
+                background: 'white', borderRadius: 16, padding: '12px 14px',
+                boxShadow: '0 2px 10px rgba(0,0,0,0.06)',
+                border: `1px solid ${stat.bg}`
+              }}>
+                <p style={{ fontSize: 22, fontWeight: 800, color: stat.color, margin: 0 }}>{stat.value}</p>
+                <p style={{ fontSize: 11, color: '#AAA', margin: '2px 0 0', fontWeight: 500 }}>{stat.label}</p>
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* Section titre */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-          <p style={{ fontSize: 13, fontWeight: 700, color: '#888', letterSpacing: 0.8, textTransform: 'uppercase', margin: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+          <p style={{ fontSize: 12, fontWeight: 800, color: '#999', letterSpacing: 1, textTransform: 'uppercase', margin: 0 }}>
             Mes repas
           </p>
-          <span style={{ fontSize: 12, color: '#BBB', fontWeight: 500 }}>{meals.length}</span>
+          <span style={{ fontSize: 12, color: '#BBB', fontWeight: 600 }}>{meals.length}</span>
         </div>
 
         {meals.length === 0 ? (
           <div style={{
-            background: 'white', borderRadius: 20, padding: '36px 24px',
-            textAlign: 'center',
-            boxShadow: '0 2px 16px rgba(0,0,0,0.06)',
-            border: '0.5px solid rgba(0,0,0,0.06)'
+            background: 'white', borderRadius: 24, padding: '40px 24px',
+            textAlign: 'center', boxShadow: '0 2px 16px rgba(0,0,0,0.06)',
           }}>
-            <div style={{ fontSize: 48, marginBottom: 12 }}>🥗</div>
-            <p style={{ fontWeight: 700, color: '#1B3A1E', marginBottom: 6, fontSize: 17 }}>
+            <div style={{ fontSize: 52, marginBottom: 14 }}>🥗</div>
+            <p style={{ fontWeight: 800, color: '#1B5E20', marginBottom: 6, fontSize: 18 }}>
               Aucun repas encore
             </p>
             <p style={{ fontSize: 14, color: '#AAA', marginBottom: 24, lineHeight: 1.6 }}>
@@ -165,22 +164,21 @@ export default function HomePage() {
               <button style={{
                 background: '#43A047', color: 'white', border: 'none',
                 borderRadius: 100, padding: '13px 32px',
-                fontSize: 15, fontWeight: 600, cursor: 'pointer',
-                boxShadow: '0 4px 12px rgba(59,110,63,0.3)'
+                fontSize: 15, fontWeight: 700, cursor: 'pointer',
+                boxShadow: '0 4px 12px rgba(67,160,71,0.4)'
               }}>
                 + Créer un repas
               </button>
             </Link>
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {meals.map(meal => (
               <div key={meal.id}>
                 {confirmId === meal.id ? (
                   <div style={{
                     background: '#FEF0F0', borderRadius: 20, padding: '16px',
-                    border: '0.5px solid #FFCDD2',
-                    boxShadow: '0 2px 12px rgba(198,40,40,0.08)'
+                    border: '1px solid #FFCDD2',
                   }}>
                     <p style={{ fontSize: 14, fontWeight: 700, color: '#C62828', margin: '0 0 4px' }}>
                       Supprimer ce repas ?
@@ -191,15 +189,13 @@ export default function HomePage() {
                     <div style={{ display: 'flex', gap: 8 }}>
                       <button onClick={() => setConfirmId(null)} style={{
                         flex: 1, padding: '11px', borderRadius: 100,
-                        border: '0.5px solid #E0DDD6', background: 'white',
-                        fontSize: 14, fontWeight: 500, cursor: 'pointer', color: '#555'
-                      }}>
-                        Annuler
-                      </button>
+                        border: '1px solid #E0E0E0', background: 'white',
+                        fontSize: 14, fontWeight: 600, cursor: 'pointer', color: '#555'
+                      }}>Annuler</button>
                       <button onClick={() => handleDelete(meal.id)} disabled={deletingId === meal.id} style={{
                         flex: 1, padding: '11px', borderRadius: 100,
-                        border: 'none', background: '#C62828',
-                        fontSize: 14, fontWeight: 600, cursor: 'pointer', color: 'white'
+                        border: 'none', background: '#E53935',
+                        fontSize: 14, fontWeight: 700, cursor: 'pointer', color: 'white'
                       }}>
                         {deletingId === meal.id ? 'Suppression...' : 'Supprimer'}
                       </button>
@@ -209,51 +205,50 @@ export default function HomePage() {
                   <div style={{
                     background: 'white', borderRadius: 20,
                     overflow: 'hidden',
-                    boxShadow: '0 2px 16px rgba(0,0,0,0.07)',
-                    border: '0.5px solid rgba(0,0,0,0.05)',
+                    boxShadow: '0 2px 12px rgba(0,0,0,0.07)',
                     display: 'flex', alignItems: 'stretch',
                   }}>
-                    <Link href={`/repas/${meal.id}`} style={{ textDecoration: 'none', flex: 1, display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px' }}>
+                    <Link href={`/repas/${meal.id}`} style={{ textDecoration: 'none', flex: 1, display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px' }}>
                       <div style={{
-                        width: 54, height: 54, borderRadius: 16,
+                        width: 58, height: 58, borderRadius: 16,
                         overflow: 'hidden', flexShrink: 0,
-                        background: 'linear-gradient(135deg, #E8F0E8, #C8DEC8)',
+                        background: '#E8F5E9',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
                       }}>
                         {meal.photo_url
                           ? <img src={meal.photo_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={meal.name} />
-                          : <span style={{ fontSize: 26 }}>🍽️</span>
+                          : <span style={{ fontSize: 28 }}>🍽️</span>
                         }
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <p style={{ fontWeight: 700, color: '#1B3A1E', margin: '0 0 3px', fontSize: 15, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        <p style={{ fontWeight: 700, color: '#1B5E20', margin: '0 0 4px', fontSize: 15, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                           {meal.name}
                         </p>
-                        {meal.date ? (
-                          <p style={{ fontSize: 12, color: '#AAA', margin: 0, fontWeight: 400 }}>
-                            📅 {new Date(meal.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
-                          </p>
-                        ) : (meal as any).date_mode === 'doodle' ? (
-                          <p style={{ fontSize: 12, color: '#E8874A', margin: 0, fontWeight: 600 }}>
-                            🗳️ Sondage en cours
-                          </p>
-                        ) : null}
-                        {meal.ai_menu && (
-                          <span style={{
-                            display: 'inline-block', marginTop: 4,
-                            fontSize: 11, background: '#E8F5E8',
-                            color: '#2E7D32', padding: '2px 8px',
-                            borderRadius: 100, fontWeight: 600
-                          }}>✓ Menu prêt</span>
-                        )}
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                          {meal.date && (
+                            <span style={{ fontSize: 11, background: '#E8F5E9', color: '#2E7D32', padding: '2px 8px', borderRadius: 100, fontWeight: 600 }}>
+                              📅 {new Date(meal.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
+                            </span>
+                          )}
+                          {!(meal as any).date && (meal as any).date_mode === 'doodle' && (
+                            <span style={{ fontSize: 11, background: '#FFF3E0', color: '#F57C00', padding: '2px 8px', borderRadius: 100, fontWeight: 600 }}>
+                              🗳️ Sondage en cours
+                            </span>
+                          )}
+                          {meal.ai_menu && (
+                            <span style={{ fontSize: 11, background: '#E8F5E9', color: '#2E7D32', padding: '2px 8px', borderRadius: 100, fontWeight: 600 }}>
+                              ✓ Menu prêt
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </Link>
                     <button onClick={() => setConfirmId(meal.id)} style={{
                       background: 'transparent', border: 'none',
-                      borderLeft: '0.5px solid rgba(0,0,0,0.05)',
+                      borderLeft: '1px solid #F5F5F5',
                       padding: '0 16px', cursor: 'pointer',
-                      color: '#DDD', fontSize: 18, flexShrink: 0
+                      color: '#E0E0E0', fontSize: 18, flexShrink: 0
                     }}>🗑️</button>
                   </div>
                 )}

@@ -9,45 +9,62 @@ export default function RejoindreRepas({ params }: { params: Promise<{ token: st
   const [status, setStatus] = useState<'loading' | 'joined' | 'error' | 'auth'>('loading')
   const [mealName, setMealName] = useState('')
   const [mealPhoto, setMealPhoto] = useState('')
+  const [mealId, setMealId] = useState('')
   const [organizerName, setOrganizerName] = useState('')
 
   useEffect(() => {
     const init = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
 
-      const { data: meal } = await supabase
-        .from('meals')
-        .select('*')
-        .eq('invite_token', token)
-        .single()
+        const { data: meal, error: mealError } = await supabase
+          .from('meals')
+          .select('*')
+          .eq('invite_token', token)
+          .single()
 
-      if (meal) {
+        console.log('Token:', token)
+        console.log('Meal:', meal)
+        console.log('Meal error:', mealError)
+
+        if (mealError || !meal) {
+          setStatus('error')
+          return
+        }
+
+        setMealName(meal.name)
+        setMealPhoto(meal.photo_url || '')
+        setMealId(meal.id)
+
         const { data: organizer } = await supabase
           .from('profiles')
           .select('name')
           .eq('id', meal.organizer_id)
           .single()
         setOrganizerName(organizer?.name || '')
+
+        if (!user) {
+          setStatus('auth')
+          return
+        }
+
+        const { error: guestError } = await supabase
+          .from('meal_guests')
+          .upsert({
+            meal_id: meal.id,
+            profile_id: user.id,
+            status: 'accepted',
+          })
+
+        console.log('Guest error:', guestError)
+
+        setStatus('joined')
+        setTimeout(() => router.push(`/repas/${meal.id}`), 2000)
+
+      } catch (err) {
+        console.error('Erreur:', err)
+        setStatus('error')
       }
-
-      if (!meal) { setStatus('error'); return }
-      setMealName(meal.name)
-      setMealPhoto(meal.photo_url || '')
-      setOrganizerName((meal.profiles as any)?.name || '')
-
-      if (!user) {
-        setStatus('auth')
-        return
-      }
-
-      await supabase.from('meal_guests').upsert({
-        meal_id: meal.id,
-        profile_id: user.id,
-        status: 'accepted',
-      })
-
-      setStatus('joined')
-      setTimeout(() => router.push(`/repas/${meal.id}`), 2000)
     }
     init()
   }, [token, router])
@@ -92,28 +109,23 @@ export default function RejoindreRepas({ params }: { params: Promise<{ token: st
       <div style={{ position: 'absolute', bottom: -40, left: -40, width: 160, height: 160, borderRadius: '50%', background: 'rgba(255,255,255,0.04)' }} />
 
       <div style={{ width: '100%', maxWidth: 380, position: 'relative', zIndex: 1 }}>
-
-        {/* Invitation card */}
         <div style={{
           background: 'white', borderRadius: 28, overflow: 'hidden',
           boxShadow: '0 24px 60px rgba(0,0,0,0.3)', marginBottom: 16
         }}>
           {mealPhoto ? (
-            <img src={mealPhoto} alt={mealName}
-              style={{ width: '100%', height: 160, objectFit: 'cover' }} />
+            <img src={mealPhoto} alt={mealName} style={{ width: '100%', height: 160, objectFit: 'cover' }} />
           ) : (
             <div style={{
               height: 120, background: 'linear-gradient(135deg, #E8F5E9, #C8E6C9)',
               display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 48
             }}>🍽️</div>
           )}
-
           <div style={{ padding: '20px 24px' }}>
             <div style={{
               display: 'inline-block', fontSize: 11, fontWeight: 800,
               color: '#43A047', background: '#E8F5E9',
-              padding: '4px 12px', borderRadius: 100, marginBottom: 12,
-              letterSpacing: 0.5
+              padding: '4px 12px', borderRadius: 100, marginBottom: 12
             }}>
               🎉 INVITATION
             </div>
@@ -136,13 +148,12 @@ export default function RejoindreRepas({ params }: { params: Promise<{ token: st
           background: '#F57C00', color: 'white',
           border: 'none', borderRadius: 100,
           fontSize: 15, fontWeight: 700, cursor: 'pointer',
-          boxShadow: '0 6px 20px rgba(245,124,0,0.5)',
-          marginBottom: 10
+          boxShadow: '0 6px 20px rgba(245,124,0,0.5)', marginBottom: 10
         }}>
           Créer mon compte gratuitement →
         </button>
 
-        <button onClick={() => router.push(`/auth`)} style={{
+        <button onClick={() => router.push('/auth')} style={{
           width: '100%', padding: '13px',
           background: 'rgba(255,255,255,0.15)',
           color: 'rgba(255,255,255,0.9)',

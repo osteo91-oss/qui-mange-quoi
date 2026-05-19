@@ -30,7 +30,7 @@ export default function Navbar() {
       </Link>
 
       <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        <Link href="/repas/nouveau">
+        <Link href="/nouveau">
           <div style={{
             width: 56, height: 56, borderRadius: '50%',
             background: 'linear-gradient(135deg, #E8874A, #D4641E)',

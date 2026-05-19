@@ -102,7 +102,7 @@ export default function HomePage() {
             <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 13, margin: '0 0 20px' }}>
               {meals.length === 0 ? 'Créez votre premier repas' : `${meals.length} repas organisé${meals.length > 1 ? 's' : ''}`}
             </p>
-            <Link href="/repas/nouveau">
+            <Link href="/nouveau">
               <button style={{
                 background: '#E8874A',
                 color: 'white', border: 'none',
@@ -156,7 +156,7 @@ export default function HomePage() {
             <p style={{ fontSize: 14, color: '#AAA', marginBottom: 24, lineHeight: 1.6 }}>
               Créez votre premier repas et invitez<br />vos convives en un clic.
             </p>
-            <Link href="/repas/nouveau">
+            <Link href="/nouveau">
               <button style={{
                 background: '#3B6E3F', color: 'white', border: 'none',
                 borderRadius: 100, padding: '13px 32px',

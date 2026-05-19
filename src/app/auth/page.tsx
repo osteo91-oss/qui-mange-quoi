@@ -31,7 +31,7 @@ export default function AuthPage() {
           cuisines: [],
         })
       }
-      router.push('/profil')
+      router.push('/nouveau')
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) { setError(error.message); setLoading(false); return }

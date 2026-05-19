@@ -144,6 +144,31 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
                   </p>
                 )}
               </div>
+              {isOrganizer && (
+                <label style={{ cursor: 'pointer' }}>
+                  <input type="file" accept="image/*" style={{ display: 'none' }}
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0]
+                      if (!file) return
+                      const { compressImage } = await import('@/lib/compress')
+                      const compressed = await compressImage(file, 800, 0.75)
+                      const fileName = `${Date.now()}.jpg`
+                      const { error } = await supabase.storage.from('meals').upload(fileName, compressed, { upsert: true })
+                      if (!error) {
+                        const { data } = supabase.storage.from('meals').getPublicUrl(fileName)
+                        await supabase.from('meals').update({ photo_url: data.publicUrl }).eq('id', id)
+                        setMeal({ ...meal, photo_url: data.publicUrl })
+                      }
+                    }}
+                  />
+                  <div style={{
+                    background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(8px)',
+                    borderRadius: '50%', width: 36, height: 36,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 16, cursor: 'pointer'
+                  }}>📷</div>
+                </label>
+              )}
             </div>
           </div>
         ) : (
@@ -157,7 +182,7 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
                 borderRadius: '50%', width: 36, height: 36,
                 fontSize: 18, cursor: 'pointer', color: 'white'
               }}>‹</button>
-              <div>
+              <div style={{ flex: 1 }}>
                 <h1 style={{ fontSize: 18, fontWeight: 800, color: 'white', margin: 0 }}>{meal.name}</h1>
                 {!isOrganizer && (
                   <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', margin: '2px 0 0' }}>
@@ -165,10 +190,34 @@ export default function RepasPage({ params }: { params: Promise<{ id: string }> 
                   </p>
                 )}
               </div>
+              {isOrganizer && (
+                <label style={{ cursor: 'pointer' }}>
+                  <input type="file" accept="image/*" style={{ display: 'none' }}
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0]
+                      if (!file) return
+                      const { compressImage } = await import('@/lib/compress')
+                      const compressed = await compressImage(file, 800, 0.75)
+                      const fileName = `${Date.now()}.jpg`
+                      const { error } = await supabase.storage.from('meals').upload(fileName, compressed, { upsert: true })
+                      if (!error) {
+                        const { data } = supabase.storage.from('meals').getPublicUrl(fileName)
+                        await supabase.from('meals').update({ photo_url: data.publicUrl }).eq('id', id)
+                        setMeal({ ...meal, photo_url: data.publicUrl })
+                      }
+                    }}
+                  />
+                  <div style={{
+                    background: 'rgba(255,255,255,0.2)', border: 'none',
+                    borderRadius: '50%', width: 36, height: 36,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 16, cursor: 'pointer'
+                  }}>📷</div>
+                </label>
+              )}
             </div>
           </div>
         )}
-
         {/* Tabs */}
         <div style={{
           background: 'white', padding: '12px 16px',

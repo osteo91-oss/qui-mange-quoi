@@ -69,7 +69,7 @@ export default function HomePage() {
         boxShadow: '0 1px 0 rgba(0,0,0,0.06)'
       }}>
         <img src="/logo-icon.png" alt="Logo" style={{ width: 38, height: 38 }} />
-        <img src="/logo.png" alt="Qui mange quoi" style={{ height: 28 }} />
+        <img src="/logo-icon.png" alt="Qui mange quoi" style={{ width: 36, height: 36 }} />
         <Link href="/profil">
           <div style={{
             width: 38, height: 38, borderRadius: '50%',
